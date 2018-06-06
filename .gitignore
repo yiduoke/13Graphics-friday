@@ -3,7 +3,7 @@ ignore
 *.png
 *.gif
 *.o
-*.~
+*~
 mdl
 
 # Prerequisites

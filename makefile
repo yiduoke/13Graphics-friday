@@ -48,6 +48,6 @@ clean:
 	-rm y.tab.c y.tab.h
 	-rm lex.yy.c
 	-rm -rf mdl.dSYM
-	-rm mdl *.o
+	-rm mdl *.o *~
 	-rm *.png
 	-rm anim/*.png *.gif
