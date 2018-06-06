@@ -302,6 +302,14 @@ void my_main() {
 		for (i = 0; i < lastop; i ++) {
 			//printf("%d: ",i);
 			switch (op[i].opcode) {
+				case AMBIENT:
+					ambient.red = op[i].op.ambient.c[0];
+					ambient.green = op[i].op.ambient.c[1];
+					ambient.blue = op[i].op.ambient.c[2];
+					break;
+				case LIGHT:
+					// Create a new light object (maybe use malloc I dunno man) and add it via set_value(lookup_symbol)
+					break;
 				case SPHERE:
 					/* printf("Sphere: %6.2f %6.2f %6.2f r=%6.2f", */
 					/* 	 op[i].op.sphere.d[0],op[i].op.sphere.d[1], */
