@@ -414,7 +414,7 @@ void my_main() {
 						printf("\tknob: %s",op[i].op.move.p->name);
 						//val = get_val(knobs[j], op[i].op.move.p->name);
 						SYMTAB *tab = lookup_symbol(op[i].op.move.p->name);
-						//val = tab->s.value;
+						val = tab->s.value;
 						xval *= val;
 						yval *= val;
 						zval *= val;
