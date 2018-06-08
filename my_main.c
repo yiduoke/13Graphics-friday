@@ -320,9 +320,21 @@ void my_main() {
 					light[COLOR][BLUE] = op[i].op.light.c[BLUE];
 					break;
 				case CONSTANTS:
-					//tab = lookup_symbol(op[i].op.constants.p->name);
-					tab = op[i].op.constants.p;
+					{
+					SYMTAB *tab = lookup_symbol(op[i].op.constants.p->name);
+					areflect[RED] = tab->s.c->r[0];
+					areflect[GREEN] = tab->s.c->g[0];
+					areflect[BLUE] = tab->s.c->b[0];
+
+					dreflect[RED] = tab->s.c->r[1];
+					dreflect[GREEN] = tab->s.c->g[1];
+					dreflect[BLUE] = tab->s.c->b[1];
+
+					sreflect[RED] = tab->s.c->r[2];
+					sreflect[GREEN] = tab->s.c->g[2];
+					sreflect[BLUE] = tab->s.c->b[2];
 					break;
+					}
 				case SPHERE:
 					/* printf("Sphere: %6.2f %6.2f %6.2f r=%6.2f", */
 					/* 	 op[i].op.sphere.d[0],op[i].op.sphere.d[1], */
