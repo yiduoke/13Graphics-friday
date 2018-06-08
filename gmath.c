@@ -5,23 +5,40 @@
 #include "gmath.h"
 #include "matrix.h"
 #include "ml6.h"
+#include "symtab.h"
 
 //lighting functions
-color get_lighting( double *normal, double *view, color alight, double light[2][3], double *areflect, double *dreflect, double *sreflect) {
+color get_lighting(double *normal, double *view, color alight, double light[2][3], double *areflect, double *dreflect, double *sreflect) {
+	color a, d, s, i;
+	i.red = 0;
+	i.green = 0;
+	i.blue = 0;
+	normalize(normal);
+	int j, k = 0;
+	for (j = 0; j < lastsym; j ++) {
+		if (symtab[j].type == SYM_LIGHT) {
+			SYMTAB *tab = lookup_symbol(symtab[j].name);
+			light[LOCATION][0] = tab->s.l->l[0];
+			light[LOCATION][1] = tab->s.l->l[1];
+			light[LOCATION][2] = tab->s.l->l[2];
 
-  color a, d, s, i;
-  normalize(normal);
+			light[COLOR][RED] = tab->s.l->c[0];
+			light[COLOR][GREEN] = tab->s.l->c[1];
+			light[COLOR][BLUE] = tab->s.l->l[2];
 
-  a = calculate_ambient( alight, areflect );
-  d = calculate_diffuse( light, dreflect, normal );
-  s = calculate_specular( light, sreflect, view, normal );
+			a = calculate_ambient(alight, areflect);
+			d = calculate_diffuse(light, dreflect, normal);
+			s = calculate_specular(light, sreflect, view, normal);
 
-  i.red = a.red + d.red + s.red;
-  i.green = a.green + d.green + s.green;
-  i.blue = a.blue + d.blue + s.blue;
+			i.red += a.red + d.red + s.red;
+			i.green += a.green + d.green + s.green;
+			i.blue += a.blue + d.blue + s.blue;
+			k ++;
+		}
+	}
 
-  limit_color(&i);
-  return i;
+	limit_color(&i);
+	return i;
 }
 
 color calculate_ambient(color alight, double *areflect ) {

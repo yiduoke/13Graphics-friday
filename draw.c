@@ -8,6 +8,7 @@
 #include "matrix.h"
 #include "math.h"
 #include "gmath.h"
+#include "symtab.h"
 
 /*======== void scanline_convert() ==========
   Inputs: struct matrix *points

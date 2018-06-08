@@ -292,7 +292,7 @@ void my_main() {
 
 	for (j = 0; j < num_frames; j ++) {
 		printf("Frame %d:\n", j);
-		//print_symtab();
+		print_symtab();
 		if (num_frames > 1) {
 			struct vary_node *current_node = knobs[j];
 			while (current_node) {

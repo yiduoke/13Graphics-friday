@@ -15,6 +15,7 @@ for red, green and blue respectively
 
 #include "ml6.h"
 #include "display.h"
+#include "symtab.h"
 
 
 /*======== void plot() ==========
