@@ -290,6 +290,7 @@ void my_main() {
 	if (num_frames > 1) knobs = second_pass();
 
 	for (j = 0; j < num_frames; j ++) {
+		print_symtab();
 		printf("Frame %d:\n", j);
 		if (num_frames > 1) {
 			struct vary_node *current_node = knobs[j];
@@ -297,7 +298,6 @@ void my_main() {
 				set_value(lookup_symbol(current_node->name), current_node->value);
 				current_node = current_node->next;
 			}
-			print_knobs();
 		}
 		for (i = 0; i < lastop; i ++) {
 			//printf("%d: ",i);
@@ -308,8 +308,18 @@ void my_main() {
 					ambient.blue = op[i].op.ambient.c[2];
 					break;
 				case LIGHT:
-					// Create a new light object (maybe use malloc I dunno man) and add it via set_value(lookup_symbol)
+					{
+					SYMTAB *tab = lookup_symbol(op[i].op.light.p->name);
+					// print_light(tab);
+					light[LOCATION][0] = tab->s.l->l[0];
+					light[LOCATION][1] = tab->s.l->l[1];
+					light[LOCATION][2] = tab->s.l->l[2];
+
+					light[COLOR][RED] = op[i].op.light.c[RED];
+					light[COLOR][GREEN] = op[i].op.light.c[GREEN];
+					light[COLOR][BLUE] = op[i].op.light.c[BLUE];
 					break;
+					}
 				case SPHERE:
 					/* printf("Sphere: %6.2f %6.2f %6.2f r=%6.2f", */
 					/* 	 op[i].op.sphere.d[0],op[i].op.sphere.d[1], */

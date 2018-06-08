@@ -557,6 +557,7 @@ LIGHT STRING DOUBLE DOUBLE DOUBLE DOUBLE DOUBLE DOUBLE
   l->c[1]= $7;
   l->c[2]= $8;
   op[lastop].opcode=LIGHT;
+
   op[lastop].op.light.c[0] = $6;
   op[lastop].op.light.c[1] = $7;
   op[lastop].op.light.c[2] = $8;

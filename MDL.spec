@@ -102,7 +102,7 @@ light r g b x y z  	- creates a "light" datastructure with rgb values
 			  r,g,b at location x,y,z.
 			  This is inserted into the symbol table.
 
-ambient r g b 		- specifies how much ambient light is in the scene
+ambient r g b   - specifies how much ambient light is in the scene
 
 constants name kar kdr ksr kag kdg ksg kab kdb ksb [r] [g] [b]
 			- saves a set of lighting components in the
