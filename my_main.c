@@ -291,8 +291,8 @@ void my_main() {
 	if (num_frames > 1) knobs = second_pass();
 
 	for (j = 0; j < num_frames; j ++) {
-		printf("Frame %d:\n", j);
-		print_symtab();
+		printf("Frame %03d/%03d:\n", j + 1, num_frames);
+		//print_symtab();
 		if (num_frames > 1) {
 			struct vary_node *current_node = knobs[j];
 			while (current_node) {
@@ -317,7 +317,7 @@ void my_main() {
 
 					light[COLOR][RED] = tab->s.l->c[0];
 					light[COLOR][GREEN] = tab->s.l->c[1];;
-					light[COLOR][BLUE] = tab->s.l->l[2];
+					light[COLOR][BLUE] = tab->s.l->c[2];
 					break;
 				case SPHERE:
 					/* printf("Sphere: %6.2f %6.2f %6.2f r=%6.2f", */

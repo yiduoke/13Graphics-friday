@@ -24,7 +24,7 @@ color get_lighting(double *normal, double *view, color alight, double light[2][3
 
 			light[COLOR][RED] = tab->s.l->c[0];
 			light[COLOR][GREEN] = tab->s.l->c[1];
-			light[COLOR][BLUE] = tab->s.l->l[2];
+			light[COLOR][BLUE] = tab->s.l->c[2];
 
 			a = calculate_ambient(alight, areflect);
 			d = calculate_diffuse(light, dreflect, normal);
