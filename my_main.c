@@ -315,26 +315,10 @@ void my_main() {
 					light[LOCATION][1] = tab->s.l->l[1];
 					light[LOCATION][2] = tab->s.l->l[2];
 
-					light[COLOR][RED] = op[i].op.light.c[RED];
-					light[COLOR][GREEN] = op[i].op.light.c[GREEN];
-					light[COLOR][BLUE] = op[i].op.light.c[BLUE];
+					light[COLOR][RED] = tab->s.l->c[0];
+					light[COLOR][GREEN] = tab->s.l->c[1];;
+					light[COLOR][BLUE] = tab->s.l->l[2];
 					break;
-				case CONSTANTS:
-					{
-					SYMTAB *tab = lookup_symbol(op[i].op.constants.p->name);
-					areflect[RED] = tab->s.c->r[0];
-					areflect[GREEN] = tab->s.c->g[0];
-					areflect[BLUE] = tab->s.c->b[0];
-
-					dreflect[RED] = tab->s.c->r[1];
-					dreflect[GREEN] = tab->s.c->g[1];
-					dreflect[BLUE] = tab->s.c->b[1];
-
-					sreflect[RED] = tab->s.c->r[2];
-					sreflect[GREEN] = tab->s.c->g[2];
-					sreflect[BLUE] = tab->s.c->b[2];
-					break;
-					}
 				case SPHERE:
 					/* printf("Sphere: %6.2f %6.2f %6.2f r=%6.2f", */
 					/* 	 op[i].op.sphere.d[0],op[i].op.sphere.d[1], */
@@ -342,6 +326,18 @@ void my_main() {
 					/* 	 op[i].op.sphere.r); */
 					if (op[i].op.sphere.constants != NULL) {
 						//printf("\tconstants: %s",op[i].op.sphere.constants->name);
+						tab = op[i].op.sphere.constants;
+						areflect[RED] = tab->s.c->r[0];
+						areflect[GREEN] = tab->s.c->g[0];
+						areflect[BLUE] = tab->s.c->b[0];
+
+						dreflect[RED] = tab->s.c->r[1];
+						dreflect[GREEN] = tab->s.c->g[1];
+						dreflect[BLUE] = tab->s.c->b[1];
+
+						sreflect[RED] = tab->s.c->r[2];
+						sreflect[GREEN] = tab->s.c->g[2];
+						sreflect[BLUE] = tab->s.c->b[2];
 					}
 					if (op[i].op.sphere.cs != NULL) {
 						//printf("\tcs: %s",op[i].op.sphere.cs->name);
@@ -361,6 +357,18 @@ void my_main() {
 					/* 	 op[i].op.torus.r0,op[i].op.torus.r1); */
 					if (op[i].op.torus.constants != NULL) {
 						//printf("\tconstants: %s",op[i].op.torus.constants->name);
+						tab = op[i].op.torus.constants;
+						areflect[RED] = tab->s.c->r[0];
+						areflect[GREEN] = tab->s.c->g[0];
+						areflect[BLUE] = tab->s.c->b[0];
+
+						dreflect[RED] = tab->s.c->r[1];
+						dreflect[GREEN] = tab->s.c->g[1];
+						dreflect[BLUE] = tab->s.c->b[1];
+
+						sreflect[RED] = tab->s.c->r[2];
+						sreflect[GREEN] = tab->s.c->g[2];
+						sreflect[BLUE] = tab->s.c->b[2];
 					}
 					if (op[i].op.torus.cs != NULL) {
 						//printf("\tcs: %s",op[i].op.torus.cs->name);
@@ -381,6 +389,18 @@ void my_main() {
 					/* 	 op[i].op.box.d1[2]); */
 					if (op[i].op.box.constants != NULL) {
 						//printf("\tconstants: %s",op[i].op.box.constants->name);
+						tab = op[i].op.box.constants;
+						areflect[RED] = tab->s.c->r[0];
+						areflect[GREEN] = tab->s.c->g[0];
+						areflect[BLUE] = tab->s.c->b[0];
+
+						dreflect[RED] = tab->s.c->r[1];
+						dreflect[GREEN] = tab->s.c->g[1];
+						dreflect[BLUE] = tab->s.c->b[1];
+
+						sreflect[RED] = tab->s.c->r[2];
+						sreflect[GREEN] = tab->s.c->g[2];
+						sreflect[BLUE] = tab->s.c->b[2];
 					}
 					if (op[i].op.box.cs != NULL) {
 						//printf("\tcs: %s",op[i].op.box.cs->name);
