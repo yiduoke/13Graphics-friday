@@ -244,6 +244,7 @@ void my_main() {
 	double step_3d = 100;
 	double theta;
 	double knob_value, xval, yval, zval, val;
+	SYMTAB *tab;
 
 	//Lighting values here for easy access
 	color ambient;
@@ -290,8 +291,8 @@ void my_main() {
 	if (num_frames > 1) knobs = second_pass();
 
 	for (j = 0; j < num_frames; j ++) {
-		print_symtab();
 		printf("Frame %d:\n", j);
+		//print_symtab();
 		if (num_frames > 1) {
 			struct vary_node *current_node = knobs[j];
 			while (current_node) {
@@ -308,9 +309,8 @@ void my_main() {
 					ambient.blue = op[i].op.ambient.c[2];
 					break;
 				case LIGHT:
-					{
-					SYMTAB *tab = lookup_symbol(op[i].op.light.p->name);
-					// print_light(tab);
+					//tab = lookup_symbol(op[i].op.light.p->name);
+					tab = op[i].op.light.p;
 					light[LOCATION][0] = tab->s.l->l[0];
 					light[LOCATION][1] = tab->s.l->l[1];
 					light[LOCATION][2] = tab->s.l->l[2];
@@ -319,7 +319,10 @@ void my_main() {
 					light[COLOR][GREEN] = op[i].op.light.c[GREEN];
 					light[COLOR][BLUE] = op[i].op.light.c[BLUE];
 					break;
-					}
+				case CONSTANTS:
+					//tab = lookup_symbol(op[i].op.constants.p->name);
+					tab = op[i].op.constants.p;
+					break;
 				case SPHERE:
 					/* printf("Sphere: %6.2f %6.2f %6.2f r=%6.2f", */
 					/* 	 op[i].op.sphere.d[0],op[i].op.sphere.d[1], */
@@ -411,9 +414,10 @@ void my_main() {
 					zval = op[i].op.move.d[2];
 					//printf("Move: %6.2f %6.2f %6.2f", xval, yval, zval);
 					if (op[i].op.move.p != NULL) {
-						printf("\tknob: %s",op[i].op.move.p->name);
+						//printf("\tknob: %s",op[i].op.move.p->name);
 						//val = get_val(knobs[j], op[i].op.move.p->name);
-						SYMTAB *tab = lookup_symbol(op[i].op.move.p->name);
+						//tab = lookup_symbol(op[i].op.move.p->name);
+						tab = op[i].op.move.p;
 						val = tab->s.value;
 						xval *= val;
 						yval *= val;
@@ -433,7 +437,8 @@ void my_main() {
 					if (op[i].op.scale.p != NULL) {
 						//printf("\tknob: %s",op[i].op.scale.p->name);
 						//val = get_val(knobs[j], op[i].op.scale.p->name);
-						SYMTAB *tab = lookup_symbol(op[i].op.scale.p->name);
+						//tab = lookup_symbol(op[i].op.scale.p->name);
+						tab = op[i].op.scale.p;
 						val = tab->s.value;
 						xval *= val;
 						yval *= val;
@@ -452,7 +457,8 @@ void my_main() {
 					if (op[i].op.rotate.p != NULL) {
 						//printf("\tknob: %s",op[i].op.rotate.p->name);
 						//val = get_val(knobs[j], op[i].op.rotate.p->name);
-						SYMTAB *tab = lookup_symbol(op[i].op.rotate.p->name);
+						//tab = lookup_symbol(op[i].op.rotate.p->name);
+						tab = op[i].op.rotate.p;
 						val = tab->s.value;
 						xval *= val;
 						theta *= val;
