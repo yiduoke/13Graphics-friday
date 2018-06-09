@@ -9,7 +9,6 @@
 #include "math.h"
 #include "gmath.h"
 #include "symtab.h"
-#include "uthash.h"
 
 /*======== void scanline_convert() ==========
   Inputs: struct matrix *points
