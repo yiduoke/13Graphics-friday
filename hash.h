@@ -5,7 +5,7 @@
 
 struct DataItem {
     double key[3]; // coordinates of a vertex
-    double data[3][1024]; // associated surface normals
+    double vertex_normal[3]; // sum of all polygon normals
 };
 
 struct DataItem** hashArray; 

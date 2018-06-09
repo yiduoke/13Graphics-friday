@@ -10,8 +10,9 @@ struct DataItem *search(double key[3]) {
 	
     //move in array until empty 
     while(hashArray[hashIndex]) {
-	
-        if(hashArray[hashIndex]->key[0] == key[0] && hashArray[hashIndex]->key[1] == key[1] && hashArray[hashIndex]->key[2] == key[2]){
+        if(hashArray[hashIndex]->key[0] == key[0] && 
+		   hashArray[hashIndex]->key[1] == key[1] &&
+		   hashArray[hashIndex]->key[2] == key[2]) {
             return hashArray[hashIndex]; 
         }
         
@@ -22,31 +23,25 @@ struct DataItem *search(double key[3]) {
     return NULL;        
 }
 
-void insert(double key0, double key1, double key2, double data0, double data1, double data2){
+void insert(double key0, double key1, double key2, double data0, double data1, double data2) {
     int i, j;
     for (i = 0; i < num_vertices; i++){
         if (!hashArray[i]){//empty spot (1st one), put this in
-            struct DataItem *item = (struct DataItem*)malloc(sizeof(struct DataItem));
+            struct DataItem *item = (struct DataItem *)malloc(sizeof(struct DataItem));
             item->key[0] = key0;
             item->key[1] = key1;
             item->key[2] = key2;
-            item->data[0][0] = data0;
-            item->data[1][0] = data1;
-            item->data[2][0] = data2;
+            item->vertex_normal[0] += data0;
+			item->vertex_normal[1] += data1;
+			item->vertex_normal[2] += data2;
             hashArray[i] = item;
             return;
         }
         else{
-            // printf("match? %d\n", key0==hashArray[i]->key[0]);
-            if (hashArray[i]->key[0] == key0 && hashArray[i]->key[1] == key1 && hashArray[i]->key[2] == key2){
-                // find the first empty spot in this key's data
-                j = 0;
-                while (hashArray[i]->data[0][j] || hashArray[i]->data[1][j] || hashArray[i]->data[2][j]){
-                    j++;
-                }
-                hashArray[i]->data[0][j] = data0;
-                hashArray[i]->data[1][j] = data1;
-                hashArray[i]->data[2][j] = data2;
+            if (hashArray[i]->key[0] == key0 && hashArray[i]->key[1] == key1 && hashArray[i]->key[2] == key2) {
+                hashArray[i]->vertex_normal[0] += data0;
+                hashArray[i]->vertex_normal[1] += data1;
+                hashArray[i]->vertex_normal[2] += data2;
                 return;
             }
         }
@@ -57,13 +52,10 @@ void print_hash() {
     int i, j;
     for (i = 0; i<num_vertices; i++){
         if (hashArray[i]){
-            printf("key:\n(%f, %f, %f)\n", hashArray[i]->key[0], hashArray[i]->key[1], hashArray[i]->key[2]);
+            printf("key:\n(%0.2f, %0.2f, %0.2f)\n", hashArray[i]->key[0], hashArray[i]->key[1], hashArray[i]->key[2]);
             j = 0;
             printf("data:\n");
-            while (hashArray[i]->data[0][j] || hashArray[i]->data[1][j] || hashArray[i]->data[2][j]){
-                printf("(%f, %f, %f)\n", hashArray[i]->data[0][j], hashArray[i]->data[1][j], hashArray[i]->data[2][j]);
-                j++;
-            }
+			printf("(%0.2f, %0.2f, %0.2f)\n", hashArray[i]->vertex_normal[0], hashArray[i]->vertex_normal[1], hashArray[i]->vertex_normal[2]);
             printf("\n\n");
         }
         else{
