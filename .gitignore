@@ -5,6 +5,9 @@ ignore
 *.o
 *~
 mdl
+lex.yy.c
+y.tab.c
+y.tab.h
 
 # Prerequisites
 *.d
