@@ -242,7 +242,7 @@ void my_main() {
 	g.red = 0;
 	g.green = 0;
 	g.blue = 0;
-	double step_3d = 100;
+	double step_3d = 10;
 	double theta;
 	double knob_value, xval, yval, zval, val;
 	SYMTAB *tab;
