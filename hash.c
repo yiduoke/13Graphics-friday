@@ -1,6 +1,6 @@
 #include "hash.h" 
 
-void create(int number){
+void create_hash(int number){
     num_vertices = number;
     hashArray = (struct DataItem**)calloc(number, sizeof(struct DataItem *));
 }
@@ -65,16 +65,16 @@ void print_hash() {
     printf("\n");
 }
 
-int main() {
+// int main() {
 
-    create(500);
-    insert(24, 25, 26, 2, 3, 4);
-    insert(24, 25, 26, 22, 33, 44);
+//     create_hash(500);
+//     insert(24, 25, 26, 2, 3, 4);
+//     insert(24, 25, 26, 22, 33, 44);
 
-    insert(4, 5, 6, 24, 34, 44);
-    insert(4, 5, 6, 0, 2, 0);
-    insert(4, 5, 6, 64, 64, 64);
+//     insert(4, 5, 6, 24, 34, 44);
+//     insert(4, 5, 6, 0, 2, 0);
+//     insert(4, 5, 6, 64, 64, 64);
 
-    printf("searching from (24, 25, 26): (%f, %f, %f)\n", search(24, 25, 26)[0], search(24, 25, 26)[1], search(24, 25, 26)[2]);
-    print_hash();
-}
+//     printf("searching from (24, 25, 26): (%f, %f, %f)\n", search(24, 25, 26)[0], search(24, 25, 26)[1], search(24, 25, 26)[2]);
+//     print_hash();
+// }

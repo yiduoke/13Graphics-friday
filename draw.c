@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <limits.h>
+#include <math.h>
 
 #include "ml6.h"
 #include "display.h"
@@ -9,6 +10,138 @@
 #include "math.h"
 #include "gmath.h"
 #include "symtab.h"
+#include "hash.h"
+
+void gouraud_shading(struct matrix *polygons, screen s, zbuffer zbuf,
+  double *view, double light[2][3], color ambient,
+  double *areflect,
+  double *dreflect,
+  double *sreflect) {
+if (polygons->lastcol < 3) {
+printf("Need at least 3 points to draw a polygon!\n");
+return;
+}
+
+int point;
+double *normal;
+create_hash(polygons->lastcol);
+for (point = 0; point < polygons->lastcol - 2; point += 3) {
+normal = calculate_normal(polygons, point);
+insert(polygons->m[point][0], polygons->m[point][1], polygons->m[point][2],
+normal[0], normal[1], normal[2]);
+insert(polygons->m[point+1][0], polygons->m[point+1][1], polygons->m[point+1][2],
+normal[0], normal[1], normal[2]);
+insert(polygons->m[point+2][0], polygons->m[point+2][1], polygons->m[point+2][2],
+normal[0], normal[1], normal[2]);
+}
+for (point = 0; point < polygons->lastcol - 2; point += 3) {
+if (dot_product(normal, view) > 0) {
+int b = point, m = point + 1, t = point + 2, temp;
+if (polygons->m[1][b] > polygons->m[1][m]) {
+temp = b;
+b = m;
+m = temp;
+}
+if (polygons->m[1][b] > polygons->m[1][t]) {
+temp = b;
+b = t;
+t = temp;
+}
+if (polygons->m[1][m] > polygons->m[1][t]) {
+temp = m;
+m = t;
+t = temp;
+}
+double *b_n, *m_n, *t_n;
+color b_c, m_c, t_c, cA, cB;
+// The b/m/t correspond to bottom/middle/top vertex. The A and B will denote the colors of the endpoints of the horizontal scalines
+b_n = search(polygons->m[0][b], polygons->m[1][b], polygons->m[2][b]);
+m_n = search(polygons->m[0][m], polygons->m[1][m], polygons->m[2][m]);
+t_n = search(polygons->m[0][t], polygons->m[1][t], polygons->m[2][t]);
+b_c = get_lighting(b_n, view, ambient, light, areflect, dreflect, sreflect);
+m_c = get_lighting(m_n, view, ambient, light, areflect, dreflect, sreflect);
+t_c = get_lighting(t_n, view, ambient, light, areflect, dreflect, sreflect);
+float xb, yb, zb, xm, ym, zm, xt, yt, zt;
+xb = polygons->m[0][b];
+yb = polygons->m[1][b];
+zb = polygons->m[2][b];
+
+xm = polygons->m[0][m];
+ym = polygons->m[1][m];
+zm = polygons->m[2][m];
+
+xt = polygons->m[0][t];
+yt = polygons->m[1][t];
+zt = polygons->m[2][t];
+float x0 = xb, x1 = xb, y, z0 = zb, z1 = zb,
+cA_red = b_c.red, cA_green = b_c.green, cA_blue = b_c.blue,
+cB_red = b_c.red, cB_green = b_c.green, cB_blue = b_c.blue;
+cA.red = b_c.red;
+cA.green = b_c.green;
+cA.blue = b_c.blue;
+cB.red = b_c.red;
+cB.green = b_c.green;
+cB.blue = b_c.blue;
+for (y = yb; y < ym; y ++) {
+draw_line_with_color(x0, y, z0, x1, y, z1, s, zbuf, cA, cB);
+
+x0 += (xt - xb) / (yt - yb);
+z0 += (zt - zb) / (yt - yb);
+x1 += (xm - xb) / (ym - yb);
+z1 += (zm - zb) / (ym - yb);
+
+// I have to calculate the values of cA and cB
+// So cA will be the color of the first endpoint; i.e., the endpoint that moves only along a single line
+// cB will, of course, be the color of the second endpoint; the endpoint that moves along two separate lines
+cA_red += (t_c.red - b_c.red) / (yt - yb);
+cA_green += (t_c.green - b_c.green) / (yt - yb);
+cA_blue += (t_c.blue - b_c.blue) / (yt - yb);
+
+cB_red += (m_c.red - b_c.red) / (ym - yb);
+cB_green += (m_c.green - b_c.green) / (ym - yb);
+cB_blue += (m_c.blue - b_c.blue) / (ym - yb);
+// The round() function requires the following line: `#include <math.h>`
+cA.red = round(cA_red);
+cA.green = round(cA_green);
+cA.blue = round(cA_blue);
+
+cB.red = round(cB_red);
+cB.green = round(cB_green);
+cB.blue = round(cB_blue);
+}
+x1 = xm;
+z1 = zm;
+cB.red = m_c.red;
+cB.green = m_c.green;
+cB.blue = m_c.blue;
+for (y = ym; y < yt; y ++) {
+draw_line_with_color(x0, y, z0, x1, y, z1, s, zbuf, cA, cB);
+
+x0 += (xt - xb) / (yt - yb);
+z0 += (zt - zb) / (yt - yb);
+x1 += (xt - xm) / (yt - ym);
+z1 += (zt - zm) / (yt - ym);
+
+cA_red += (t_c.red - b_c.red) / (yt - yb);
+cA_green += (t_c.green - b_c.green) / (yt - yb);
+cA_blue += (t_c.blue - b_c.blue) / (yt - yb);
+
+cB_red += (t_c.red - m_c.red) / (yt - ym);
+cB_green += (t_c.green - m_c.green) / (yt - ym);
+cB_blue += (t_c.blue - m_c.blue) / (yt - ym);
+
+cA.red = round(cA_red);
+cA.green = round(cA_green);
+cA.blue = round(cA_blue);
+
+cB.red = round(cB_red);
+cB.green = round(cB_green);
+cB.blue = round(cB_blue);
+}
+}
+}
+}
+
 
 /*======== void scanline_convert() ==========
   Inputs: struct matrix *points
@@ -699,4 +832,123 @@ void draw_line(int x0, int y0, double z0,
     loop_start++;
   } //end drawing loop
   plot( s, zb, c, x1, y1, z );
+} //end draw_line
+
+void draw_line_with_color(int x0, int y0, double z0,
+  int x1, int y1, double z1,
+  screen s, zbuffer zb, color c1, color c2) {
+
+  int x, y, d, A, B;
+  int dy_east, dy_northeast, dx_east, dx_northeast, d_east, d_northeast;
+  int loop_start, loop_end;
+  double distance;
+  double z, dz;
+
+  //swap points if going right -> left
+  int xt, yt;
+  if (x0 > x1) {
+    xt = x0;
+    yt = y0;
+    z = z0;
+    x0 = x1;
+    y0 = y1;
+    z0 = z1;
+    x1 = xt;
+    y1 = yt;
+    z1 = z;
+  }
+
+  x = x0;
+  y = y0;
+  A = 2 * (y1 - y0);
+  B = -2 * (x1 - x0);
+  int wide = 0;
+  int tall = 0;
+  //octants 1 and 8
+  if ( abs(x1 - x0) >= abs(y1 - y0) ){ //octant 1/8
+    wide = 1;
+    loop_start = x;
+    loop_end = x1;
+    dx_east = dx_northeast = 1;
+    dy_east = 0;
+    d_east = A;
+    distance = x1 - x;
+    if ( A > 0 ) { //octant 1
+      d = A + B/2;
+      dy_northeast = 1;
+      d_northeast = A + B;
+      }
+      else { //octant 8
+        d = A - B/2;
+        dy_northeast = -1;
+        d_northeast = A - B;
+    }
+  }//end octant 1/8
+  else { //octant 2/7
+    tall = 1;
+    dx_east = 0;
+    dx_northeast = 1;
+    distance = abs(y1 - y);
+    if ( A > 0 ) {     //octant 2
+      d = A/2 + B;
+      dy_east = dy_northeast = 1;
+      d_northeast = A + B;
+      d_east = B;
+      loop_start = y;
+      loop_end = y1;
+    }
+    else {     //octant 7
+      d = A/2 - B;
+      dy_east = dy_northeast = -1;
+      d_northeast = A - B;
+      d_east = -1 * B;
+      loop_start = y1;
+      loop_end = y;
+    }
+  }
+
+  z = z0;
+  dz = (z1 - z0) / distance;
+  //printf("\t(%d, %d) -> (%d, %d)\tdistance: %0.2f\tdz: %0.2f\tz: %0.2f\n", x0, y0, x1, y1, distance, dz, z);
+
+  color c;
+  c.red = c1.red;
+  c.green = c1.green;
+  c.blue = c1.blue;
+
+  double dred = (c2.red - c1.red) / (loop_end - loop_start);
+  double dgreen = (c2.green - c1.green) / (loop_end - loop_start);
+  double dblue = (c2.blue - c1.blue) / (loop_end - loop_start);
+
+  int original_loop_start = loop_start;
+
+  while ( loop_start < loop_end ) {
+
+  c.red += (loop_start - original_loop_start) * dred;
+  c.green += (loop_start - original_loop_start) * dgreen;
+  c.blue += (loop_start - original_loop_start) * dblue;
+
+  // c.red = round(c.red);
+  // c.green = round(c.green);
+  // c.blue = round(c.blue);
+
+  plot( s, zb, c, x, y, z );
+  if ( (wide && ((A > 0 && d > 0) ||
+        (A < 0 && d < 0)))
+  ||
+  (tall && ((A > 0 && d < 0 ) ||
+        (A < 0 && d > 0) ))) {
+    y+= dy_northeast;
+    d+= d_northeast;
+    x+= dx_northeast;
+  }
+  else {
+    x+= dx_east;
+    y+= dy_east;
+    d+= d_east;
+  }
+  z+= dz;
+  loop_start++;
+  } //end drawing loop
+  plot( s, zb, c2, x1, y1, z );
 } //end draw_line
