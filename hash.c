@@ -2,6 +2,7 @@
 
 void create_hash(int number){
     num_vertices = number;
+    free(hashArray);
     hashArray = (struct DataItem**)calloc(number, sizeof(struct DataItem *));
 }
 
@@ -42,6 +43,8 @@ void insert(double key0, double key1, double key2, double data0, double data1, d
                 hashArray[i]->vertex_normal[0] += data0;
                 hashArray[i]->vertex_normal[1] += data1;
                 hashArray[i]->vertex_normal[2] += data2;
+                // printf("repeat offender; keys are %f %f %f\n", key0, key1, key2);
+                // printf("repeat offender; keys already here are %f %f %f\n\n", hashArray[i]->key[0], hashArray[i]->key[1], hashArray[i]->key[2]);
                 return;
             }
         }
@@ -49,11 +52,10 @@ void insert(double key0, double key1, double key2, double data0, double data1, d
 }
 
 void print_hash() {
-    int i, j;
+    int i;
     for (i = 0; i<num_vertices; i++){
         if (hashArray[i]){
             printf("key:\n(%0.2f, %0.2f, %0.2f)\n", hashArray[i]->key[0], hashArray[i]->key[1], hashArray[i]->key[2]);
-            j = 0;
             printf("data:\n");
 			printf("(%0.2f, %0.2f, %0.2f)\n", hashArray[i]->vertex_normal[0], hashArray[i]->vertex_normal[1], hashArray[i]->vertex_normal[2]);
             printf("\n\n");
@@ -62,12 +64,12 @@ void print_hash() {
             printf(" ~~ ");
         }
     }
-    printf("\n");
+    printf("\ni is %d\n", i);
 }
 
 // int main() {
 
-//     create_hash(500);
+//     create_hash(4);
 //     insert(24, 25, 26, 2, 3, 4);
 //     insert(24, 25, 26, 22, 33, 44);
 

@@ -49,5 +49,6 @@ void draw_lines( struct matrix * points, screen s, zbuffer zb, color c);
 void draw_line(int x0, int y0, double z0,
                int x1, int y1, double z1,
                screen s, zbuffer zb, color c);
+void gouraud_shading(struct matrix *polygons, screen s, zbuffer zbuf, double *view, double light[2][3], color ambient, double *areflect, double *dreflect, double *sreflect);
 void draw_line_with_color(int x0, int y0, double z0, int x1, int y1, double z1, screen s, zbuffer zb, color c1, color c2);
 #endif
