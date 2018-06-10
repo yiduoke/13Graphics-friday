@@ -920,26 +920,27 @@ void draw_line_with_color(int x0, int y0, double z0,
   c.green = c1.green;
   c.blue = c1.blue;
 
-  double dred;
-  double dgreen;
-  double dblue;
+  double cred = c1.red, cgreen = c1.green, cblue = c1.blue;
+  double dred, dgreen, dblue;
   // printf("870\n");
 
   if (loop_end != loop_start){
-    double dred = (c2.red - c1.red) / (loop_end - loop_start);
-    double dgreen = (c2.green - c1.green) / (loop_end - loop_start);
-    double dblue = (c2.blue - c1.blue) / (loop_end - loop_start);
+    dred = (c2.red - c1.red) / (loop_end - loop_start);
+    dgreen = (c2.green - c1.green) / (loop_end - loop_start);
+    dblue = (c2.blue - c1.blue) / (loop_end - loop_start);
   }
 
   int original_loop_start = loop_start;
 
   while ( loop_start < loop_end ) {
-
-    c.red += (loop_start - original_loop_start) * dred;
-    c.green += (loop_start - original_loop_start) * dgreen;
-    c.blue += (loop_start - original_loop_start) * dblue;
-
     plot( s, zb, c, x, y, z );
+    cred += (loop_start - original_loop_start) * dred;
+    cgreen += (loop_start - original_loop_start) * dgreen;
+    cblue += (loop_start - original_loop_start) * dblue;
+	c.red = round(cred);
+	c.green = round(cgreen);
+	c.blue = round(cblue);
+
     if ( (wide && ((A > 0 && d > 0) ||
           (A < 0 && d < 0)))
     ||
