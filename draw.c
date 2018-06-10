@@ -12,11 +12,9 @@
 #include "symtab.h"
 #include "hash.h"
 
-void gouraud_shading(struct matrix *polygons, screen s, zbuffer zbuf,
-                     double *view, double light[2][3], color ambient,
-                     double *areflect,
-                     double *dreflect,
-                     double *sreflect) {
+void draw_gouraud(struct matrix *polygons, screen s, zbuffer zb,
+                   double *view, double light[2][3], color ambient,
+                   double *areflect, double *dreflect, double *sreflect) {
 	if (polygons->lastcol < 3) {
 		printf("Need at least 3 points to draw a polygon!\n");
 		return;
@@ -30,125 +28,170 @@ void gouraud_shading(struct matrix *polygons, screen s, zbuffer zbuf,
 		normal = calculate_normal(polygons, point);
 		insert(polygons->m[0][point], polygons->m[1][point], polygons->m[2][point],
 		normal[0], normal[1], normal[2]);
-		insert(polygons->m[0][point+1], polygons->m[1][point+1], polygons->m[2][point+1],
+		insert(polygons->m[0][point + 1], polygons->m[1][point + 1], polygons->m[2][point + 1],
 		normal[0], normal[1], normal[2]);
-		insert(polygons->m[0][point+2], polygons->m[1][point+2], polygons->m[2][point+2],
+		insert(polygons->m[0][point + 2], polygons->m[1][point + 2], polygons->m[2][point + 2],
 		normal[0], normal[1], normal[2]);
 	}
-
+	
 	for (point = 0; point < polygons->lastcol - 2; point += 3) {
 		normal = calculate_normal(polygons, point);
 		if (dot_product(normal, view) > 0) {
-			int b = point, m = point + 1, t = point + 2, temp;
-			if (polygons->m[1][b] > polygons->m[1][m]) {
-				temp = b;
-				b = m;
-				m = temp;
-			}
-			if (polygons->m[1][b] > polygons->m[1][t]) {
-				temp = b;
-				b = t;
-				t = temp;
-			}
-			if (polygons->m[1][m] > polygons->m[1][t]) {
-				temp = m;
-				m = t;
-				t = temp;
-			}
-			double *b_n, *m_n, *t_n;
-			color b_c, m_c, t_c, cA, cB;
-			// The b/m/t correspond to bottom/middle/top vertex. The A and B will denote the colors of the endpoints of the horizontal scalines
-			b_n = search(polygons->m[0][b], polygons->m[1][b], polygons->m[2][b]);
-			m_n = search(polygons->m[0][m], polygons->m[1][m], polygons->m[2][m]);
-			t_n = search(polygons->m[0][t], polygons->m[1][t], polygons->m[2][t]);
-			// printf("65\n");
-			b_c = get_lighting(b_n, view, ambient, light, areflect, dreflect, sreflect);
-			m_c = get_lighting(m_n, view, ambient, light, areflect, dreflect, sreflect);
-			t_c = get_lighting(t_n, view, ambient, light, areflect, dreflect, sreflect);
-			// printf("69\n");
-			float xb, yb, zb, xm, ym, zm, xt, yt, zt;
-			xb = polygons->m[0][b];
-			yb = polygons->m[1][b];
-			zb = polygons->m[2][b];
+			color c = get_lighting(normal, view, ambient, light, areflect, dreflect, sreflect);
+			shade_gouraud(polygons, point, s, zb, view, light, ambient, areflect, dreflect, sreflect);
+			//scanline_convert(polygons, point, s, zb, c);
+			/*
+			double *n0 = search(polygons->m[0][point], polygons->m[1][point], polygons->m[2][point]);
+			double *n1 = search(polygons->m[0][point + 1], polygons->m[1][point + 1], polygons->m[2][point + 1]);
+			double *n2 = search(polygons->m[0][point + 2], polygons->m[1][point + 2], polygons->m[2][point + 2]);
+			color c0 = get_lighting(n0, view, ambient, light, areflect, dreflect, sreflect);
+			color c1 = get_lighting(n1, view, ambient, light, areflect, dreflect, sreflect);
+			color c2 = get_lighting(n2, view, ambient, light, areflect, dreflect, sreflect);
+			//printf("c0: %d %d %d | c1: %d %d %d | c2: %d %d %d\n", c0.red, c0.green, c0.blue, c1.red, c1.green, c1.blue, c2.red, c2.green, c2.blue);
+			draw_line_with_color(polygons->m[0][point],
+			                     polygons->m[1][point],
+			                     polygons->m[2][point],
+			                     polygons->m[0][point+1],
+			                     polygons->m[1][point+1],
+		                   	     polygons->m[2][point+1],
+			                     s, zb, c0, c1);
+			draw_line_with_color(polygons->m[0][point+2],
+			                     polygons->m[1][point+2],
+			                     polygons->m[2][point+2],
+			                     polygons->m[0][point+1],
+			                     polygons->m[1][point+1],
+		        	             polygons->m[2][point+1],
+		        	             s, zb, c2, c1);
+			draw_line_with_color(polygons->m[0][point],
+		        	             polygons->m[1][point],
+	        		             polygons->m[2][point],
+	        		             polygons->m[0][point+2],
+	        		             polygons->m[1][point+2],
+	        		             polygons->m[2][point+2],
+	        		             s, zb, c0, c2);
+			*/
+		}
+	}
+}
 
-			xm = polygons->m[0][m];
-			ym = polygons->m[1][m];
-			zm = polygons->m[2][m];
+void print_color(color c) {
+	printf("%03d %03d %03d ", c.red, c.green, c.blue);
+}
 
-			xt = polygons->m[0][t];
-			yt = polygons->m[1][t];
-			zt = polygons->m[2][t];
-			float x0 = xb, x1 = xb, y, z0 = zb, z1 = zb,
-			cA_red = b_c.red, cA_green = b_c.green, cA_blue = b_c.blue,
-			cB_red = b_c.red, cB_green = b_c.green, cB_blue = b_c.blue;
-			cA.red = b_c.red;
-			cA.green = b_c.green;
-			cA.blue = b_c.blue;
-			cB.red = b_c.red;
-			cB.green = b_c.green;
-			cB.blue = b_c.blue;
-			draw_line_with_color(xb, yb, zb, xm, ym, zm, s, zbuf, b_c, m_c);
-			draw_line_with_color(xm, ym, zm, xt, yt, zt, s, zbuf, m_c, t_c);
-			draw_line_with_color(xb, yb, zb, xt, yt, zt, s, zbuf, b_c, t_c);
-			for (y = yb; y < ym; y ++) {
-				// printf("92\n");
-				draw_line_with_color(x0, y, z0, x1, y, z1, s, zbuf, cA, cB);
-				// printf("94\n");
-				x0 += (xt - xb) / (yt - yb);
-				z0 += (zt - zb) / (yt - yb);
-				x1 += (xm - xb) / (ym - yb);
-				z1 += (zm - zb) / (ym - yb);
-				// printf("99\n");
+void shade_gouraud(struct matrix *points, int i, screen s, zbuffer zb,
+                   double *view, double light[2][3], color ambient,
+                   double *areflect, double *dreflect, double *sreflect) {
+	int bot, mid, top, y;
+	int distance0, distance1, distance2;
+	double x0, x1, dx0, dx1, y0, y1, y2, z0, z1, dz0, dz1;
+	double *b_n, *m_n, *t_n; // Vertex normals
+	color b_c, m_c, t_c, c0, c1; // Associated colors
+	double c0_exact[3], c1_exact[3], dc0[3], dc1[3]; // Remember to round to ints
+	int flip = 0;
+	y0 = points->m[1][i];
+	y1 = points->m[1][i + 1];
+	y2 = points->m[1][i + 2];
+	if (y0 <= y1 && y0 <= y2) {
+		bot = i;
+		if (y1 <= y2) {
+			mid = i + 1;
+			top = i + 2;
+		}
+		else {
+			mid = i + 2;
+			top = i + 1;
+		}
+	}//end y0 bottom
+	else if (y1 <= y0 && y1 <= y2) {
+		bot = i+1;
+		if (y0 <= y2) {
+			mid = i;
+			top = i + 2;
+		}
+		else {
+			mid = i + 2;
+			top = i;
+		}
+	}//end y1 bottom
+	else {
+		bot = i + 2;
+		if (y0 <= y1) {
+			mid = i;
+			top = i + 1;
+		}
+		else {
+			mid = i + 1;
+			top = i;
+		}
+	}
+	// The b/m/t correspond to bottom/middle/top vertex. The A and B will denote the colors of the endpoints of the horizontal scalines
+	b_n = search(points->m[0][bot], points->m[1][bot], points->m[2][bot]);
+	m_n = search(points->m[0][mid], points->m[1][mid], points->m[2][mid]);
+	t_n = search(points->m[0][top], points->m[1][top], points->m[2][top]);
+	b_c = get_lighting(b_n, view, ambient, light, areflect, dreflect, sreflect);
+	m_c = get_lighting(m_n, view, ambient, light, areflect, dreflect, sreflect);
+	t_c = get_lighting(t_n, view, ambient, light, areflect, dreflect, sreflect);
+	x0 = points->m[0][bot];
+	x1 = points->m[0][bot];
+	z0 = points->m[2][bot];
+	z1 = points->m[2][bot];
+	c0.red = c1.red = b_c.red;
+	c0.green = c1.green = b_c.green;
+	c0.blue = c1.blue = b_c.blue;
+	//print_color(c0);
+	//print_color(c1);
+	//printf("\n");
+	c0_exact[0] = c1_exact[0] = b_c.red;
+	c0_exact[1] = c1_exact[1] = b_c.green;
+	c0_exact[2] = c1_exact[2] = b_c.blue;
+	y = (int)(points->m[1][bot]);
+	//printf("c0:%d %d %d | c1:%d %d %d\n", c0.red, c0.green, c0.blue, c1.red, c1.green, c1.blue);
+	distance0 = (int)(points->m[1][top]) - y;
+	distance1 = (int)(points->m[1][mid]) - y;
+	distance2 = (int)(points->m[1][top]) - (int)(points->m[1][mid]);
 
-				// I have to calculate the values of cA and cB
-				// So cA will be the color of the first endpoint; i.e., the endpoint that moves only along a single line
-				// cB will, of course, be the color of the second endpoint; the endpoint that moves along two separate lines
-				cA_red += (t_c.red - b_c.red) / (yt - yb);
-				cA_green += (t_c.green - b_c.green) / (yt - yb);
-				cA_blue += (t_c.blue - b_c.blue) / (yt - yb);
-				// printf("107\n");
+	dx0 = distance0 > 0 ? (points->m[0][top] - points->m[0][bot]) / distance0 : 0;
+	dx1 = distance1 > 0 ? (points->m[0][mid] - points->m[0][bot]) / distance1 : 0;
+	dz0 = distance0 > 0 ? (points->m[2][top] - points->m[2][bot]) / distance0 : 0;
+	dz1 = distance1 > 0 ? (points->m[2][mid] - points->m[2][bot]) / distance1 : 0;
+	dc0[0] = distance0 > 0 ? (t_c.red - b_c.red) / distance0 : 0;
+	dc0[1] = distance0 > 0 ? (t_c.green - b_c.green) / distance0 : 0;
+	dc0[2] = distance0 > 0 ? (t_c.blue - b_c.blue) / distance0 : 0;
+	dc1[0] = distance1 > 0 ? (m_c.red - b_c.red) / distance1 : 0;
+	dc1[1] = distance1 > 0 ? (m_c.green - b_c.green) / distance1 : 0;
+	dc1[2] = distance1 > 0 ? (m_c.blue - b_c.blue) / distance1 : 0;
 
-				cB_red += (m_c.red - b_c.red) / (ym - yb);
-				cB_green += (m_c.green - b_c.green) / (ym - yb);
-				cB_blue += (m_c.blue - b_c.blue) / (ym - yb);
-				// The round() function requires the following line: `#include <math.h>`
-				cA.red = round(cA_red);
-				cA.green = round(cA_green);
-				cA.blue = round(cA_blue);
-
-				cB.red = round(cB_red);
-				cB.green = round(cB_green);
-				cB.blue = round(cB_blue);
-			}
-			x1 = xm;
-			z1 = zm;
-			cB.red = m_c.red;
-			cB.green = m_c.green;
-			cB.blue = m_c.blue;
-			for (y = ym; y < yt; y ++) {
-				draw_line_with_color(x0, y, z0, x1, y, z1, s, zbuf, cA, cB);
-
-				x0 += (xt - xb) / (yt - yb);
-				z0 += (zt - zb) / (yt - yb);
-				x1 += (xt - xm) / (yt - ym);
-				z1 += (zt - zm) / (yt - ym);
-
-				cA_red += (t_c.red - b_c.red) / (yt - yb);
-				cA_green += (t_c.green - b_c.green) / (yt - yb);
-				cA_blue += (t_c.blue - b_c.blue) / (yt - yb);
-
-				cB_red += (t_c.red - m_c.red) / (yt - ym);
-				cB_green += (t_c.green - m_c.green) / (yt - ym);
-				cB_blue += (t_c.blue - m_c.blue) / (yt - ym);
-
-				cA.red = round(cA_red);
-				cA.green = round(cA_green);
-				cA.blue = round(cA_blue);
-
-				cB.red = round(cB_red);
-				cB.green = round(cB_green);
-				cB.blue = round(cB_blue);
-			} 
+	while (y <= (int)points->m[1][top]) {
+		draw_line_with_color(x0, y, z0, x1, y, z1, s, zb, c0, c1);
+		//draw_line(x0, y, z0, x1, y, z1, s, zb, c0);
+		//print_color(c0);
+		//print_color(c1);
+		x0 += dx0;
+		x1 += dx1;
+		z0 += dz0;
+		z1 += dz1;
+		c0_exact[0] += dc0[0];
+		c0_exact[1] += dc0[1];
+		c0_exact[2] += dc0[2];
+		c1_exact[0] += dc1[0];
+		c1_exact[1] += dc1[1];
+		c1_exact[2] += dc1[2];
+		c0.red = (int)(c0_exact[0]);
+		c0.green = (int)(c0_exact[1]);
+		c0.blue = (int)(c0_exact[2]);
+		c1.red = (int)(c1_exact[0]);
+		c1.green = (int)(c1_exact[1]);
+		c1.blue = (int)(c1_exact[2]);
+		y ++;
+		if (!flip && y >= (int)(points->m[1][mid])) {
+			flip = 1;
+			dx1 = distance2 > 0 ? (points->m[0][top] - points->m[0][mid]) / distance2 : 0;
+			dz1 = distance2 > 0 ? (points->m[2][top] - points->m[2][mid]) / distance2 : 0;
+			x1 = points->m[0][mid];
+			z1 = points->m[2][mid];
+			dc1[0] = distance2 > 0 ? (t_c.red - m_c.red) / distance2 : 0;
+			dc1[1] = distance2 > 0 ? (t_c.green - m_c.green) / distance2 : 0;
+			dc1[2] = distance2 > 0 ? (t_c.blue - m_c.blue) / distance2 : 0;
 		}
 	}
 }
@@ -165,8 +208,7 @@ void gouraud_shading(struct matrix *polygons, screen s, zbuffer zbuf,
 
   Color should be set differently for each polygon.
   ====================*/
-void scanline_convert( struct matrix *points, int i, screen s, zbuffer zb, color c) {
-
+void scanline_convert(struct matrix *points, int i, screen s, zbuffer zb, color c) {
   int top, mid, bot, y;
   int distance0, distance1, distance2;
   double x0, x1, y0, y1, y2, dx0, dx1, z0, z1, dz0, dz1;
@@ -840,7 +882,7 @@ void draw_line(int x0, int y0, double z0,
 
 void draw_line_with_color(int x0, int y0, double z0,
   int x1, int y1, double z1,
-  screen s, zbuffer zb, color c1, color c2) {
+  screen s, zbuffer zb, color c0, color c1) {
 
   int x, y, d, A, B;
   int dy_east, dy_northeast, dx_east, dx_northeast, d_east, d_northeast;
@@ -850,6 +892,7 @@ void draw_line_with_color(int x0, int y0, double z0,
 
   //swap points if going right -> left
   int xt, yt;
+  color ct;
   if (x0 > x1) {
     xt = x0;
     yt = y0;
@@ -860,8 +903,17 @@ void draw_line_with_color(int x0, int y0, double z0,
     x1 = xt;
     y1 = yt;
     z1 = z;
+	ct.red = c0.red;
+	ct.green = c0.green;
+	ct.blue = c0.blue;
+	c0.red = c1.red;
+	c0.green = c1.green;
+	c0.blue = c1.blue;
+	c1.red = ct.red;
+	c1.green = ct.green;
+	c1.blue = ct.blue;
   }
-
+  //printf("c0:%d %d %d | c1:%d %d %d %d\n", c0.red, c0.green, c0.blue, c1.red, c1.green, c1.blue);
   x = x0;
   y = y0;
   A = 2 * (y1 - y0);
@@ -916,30 +968,30 @@ void draw_line_with_color(int x0, int y0, double z0,
   //printf("\t(%d, %d) -> (%d, %d)\tdistance: %0.2f\tdz: %0.2f\tz: %0.2f\n", x0, y0, x1, y1, distance, dz, z);
 
   color c;
-  c.red = c1.red;
-  c.green = c1.green;
-  c.blue = c1.blue;
+  c.red = c0.red;
+  c.green = c0.green;
+  c.blue = c0.blue;
 
-  double cred = c1.red, cgreen = c1.green, cblue = c1.blue;
+  double cred = c0.red, cgreen = c0.green, cblue = c0.blue;
   double dred, dgreen, dblue;
   // printf("870\n");
 
   if (loop_end != loop_start){
-    dred = (c2.red - c1.red) / (loop_end - loop_start);
-    dgreen = (c2.green - c1.green) / (loop_end - loop_start);
-    dblue = (c2.blue - c1.blue) / (loop_end - loop_start);
+    dred = (c1.red - c0.red) / (loop_end - loop_start);
+    dgreen = (c1.green - c0.green) / (loop_end - loop_start);
+    dblue = (c1.blue - c0.blue) / (loop_end - loop_start);
   }
 
   double diff = loop_start;
-
+  //printf("c0:%d %d %d | c1:%d %d %d | slope: %0.2f %0.2f %0.2f\n", c0.red, c0.green, c0.blue, c1.red, c1.green, c1.blue, dred, dgreen, dblue);
   while ( loop_start < loop_end ) {
     plot( s, zb, c, x, y, z );
     cred += dred;
     cgreen += dgreen;
     cblue += dblue;
-    c.red = round(cred);
-    c.green = round(cgreen);
-    c.blue = round(cblue);
+    c.red = (int)cred;
+    c.green = (int)cgreen;
+    c.blue = (int)cblue;
 
     if ( (wide && ((A > 0 && d > 0) ||
           (A < 0 && d < 0)))
@@ -958,5 +1010,5 @@ void draw_line_with_color(int x0, int y0, double z0,
     z+= dz;
     loop_start++;
   } //end drawing loop
-  plot( s, zb, c2, x1, y1, z );
+  plot( s, zb, c1, x1, y1, z );
 } //end draw_line
