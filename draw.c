@@ -930,16 +930,16 @@ void draw_line_with_color(int x0, int y0, double z0,
     dblue = (c2.blue - c1.blue) / (loop_end - loop_start);
   }
 
-  int original_loop_start = loop_start;
+  double diff = loop_start;
 
   while ( loop_start < loop_end ) {
     plot( s, zb, c, x, y, z );
-    cred += (loop_start - original_loop_start) * dred;
-    cgreen += (loop_start - original_loop_start) * dgreen;
-    cblue += (loop_start - original_loop_start) * dblue;
-	c.red = round(cred);
-	c.green = round(cgreen);
-	c.blue = round(cblue);
+    cred += dred;
+    cgreen += dgreen;
+    cblue += dblue;
+    c.red = round(cred);
+    c.green = round(cgreen);
+    c.blue = round(cblue);
 
     if ( (wide && ((A > 0 && d > 0) ||
           (A < 0 && d < 0)))
