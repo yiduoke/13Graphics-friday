@@ -13,6 +13,6 @@ struct DataItem* dummyItem;
 struct DataItem* item;
 int num_vertices;
 
-struct DataItem *search(double key[3]);
+double* search(double key0, double key1, double key2);
 void insert(double key0, double key1, double key2, double data0, double data1, double data2);
 void print_hash();

@@ -5,15 +5,15 @@ void create(int number){
     hashArray = (struct DataItem**)calloc(number, sizeof(struct DataItem *));
 }
 
-struct DataItem *search(double key[3]) {
+double* search(double key0, double key1, double key2) {
     int hashIndex = 0;  
 	
     //move in array until empty 
     while(hashArray[hashIndex]) {
-        if(hashArray[hashIndex]->key[0] == key[0] && 
-		   hashArray[hashIndex]->key[1] == key[1] &&
-		   hashArray[hashIndex]->key[2] == key[2]) {
-            return hashArray[hashIndex]; 
+        if(hashArray[hashIndex]->key[0] == key0 && 
+		   hashArray[hashIndex]->key[1] == key1 &&
+		   hashArray[hashIndex]->key[2] == key2) {
+            return hashArray[hashIndex]->vertex_normal;
         }
         
         //go to next cell
@@ -75,5 +75,6 @@ int main() {
     insert(4, 5, 6, 0, 2, 0);
     insert(4, 5, 6, 64, 64, 64);
 
+    printf("searching from (24, 25, 26): (%f, %f, %f)\n", search(24, 25, 26)[0], search(24, 25, 26)[1], search(24, 25, 26)[2]);
     print_hash();
 }
