@@ -13,8 +13,8 @@
 #include "hash.h"
 
 void draw_gouraud(struct matrix *polygons, screen s, zbuffer zb,
-                   double *view, double light[2][3], color ambient,
-                   double *areflect, double *dreflect, double *sreflect) {
+                  double *view, double light[2][3], color ambient,
+                  double *areflect, double *dreflect, double *sreflect) {
 	if (polygons->lastcol < 3) {
 		printf("Need at least 3 points to draw a polygon!\n");
 		return;
@@ -36,8 +36,8 @@ void draw_gouraud(struct matrix *polygons, screen s, zbuffer zb,
 	for (point = 0; point < polygons->lastcol - 2; point += 3) {
 		normal = calculate_normal(polygons, point);
 		if (dot_product(normal, view) > 0) {
-      color c = get_lighting(normal, view, ambient, light, areflect, dreflect, sreflect);
-      // printf("surface normal: %f %f %f\n", normal[0], normal[1], normal[2]);
+			color c = get_lighting(normal, view, ambient, light, areflect, dreflect, sreflect);
+			// printf("surface normal: %f %f %f\n", normal[0], normal[1], normal[2]);
 			shade_gouraud(polygons, point, s, zb, view, light, ambient, areflect, dreflect, sreflect);
 			//scanline_convert(polygons, point, s, zb, c);
 			double *n0 = search(polygons->m[0][point], polygons->m[1][point], polygons->m[2][point]);
@@ -52,23 +52,22 @@ void draw_gouraud(struct matrix *polygons, screen s, zbuffer zb,
 			                     polygons->m[2][point],
 			                     polygons->m[0][point+1],
 			                     polygons->m[1][point+1],
-		                   	     polygons->m[2][point+1],
+			                     polygons->m[2][point+1],
 			                     s, zb, c0, c1);
 			draw_line_with_color(polygons->m[0][point+2],
 			                     polygons->m[1][point+2],
 			                     polygons->m[2][point+2],
 			                     polygons->m[0][point+1],
 			                     polygons->m[1][point+1],
-		        	             polygons->m[2][point+1],
-		        	             s, zb, c2, c1);
+			                     polygons->m[2][point+1],
+			                     s, zb, c2, c1);
 			draw_line_with_color(polygons->m[0][point],
-		        	             polygons->m[1][point],
-	        		             polygons->m[2][point],
-	        		             polygons->m[0][point+2],
-	        		             polygons->m[1][point+2],
-	        		             polygons->m[2][point+2],
-	        		             s, zb, c0, c2);
-			
+			                     polygons->m[1][point],
+			                     polygons->m[2][point],
+			                     polygons->m[0][point+2],
+			                     polygons->m[1][point+2],
+			                     polygons->m[2][point+2],
+			                     s, zb, c0, c2);			
 		}
 	}
 }
@@ -126,19 +125,7 @@ void shade_gouraud(struct matrix *points, int i, screen s, zbuffer zb,
 	// The b/m/t correspond to bottom/middle/top vertex. The A and B will denote the colors of the endpoints of the horizontal scalines
 	b_n = search(points->m[0][bot], points->m[1][bot], points->m[2][bot]);
 	m_n = search(points->m[0][mid], points->m[1][mid], points->m[2][mid]);
-  t_n = search(points->m[0][top], points->m[1][top], points->m[2][top]);
-
-	//printf("Vertex normal: %0.2f %0.2f %0.2f\n", b_n[0], b_n[1], b_n[2]);
-  // normalize(b_n);
-  // normalize(m_n);
-  // normalize(t_n);
-
-  // printf("dot product of bottom vertex & view: %f\n", dot_product(b_n, view));
-  // printf("dot product of middle vertex & view: %f\n", dot_product(m_n, view));
-  // printf("dot product of top vertex & view: %f\n\n", dot_product(t_n, view));
-  // printf("vertex normal: %f %f %f\n", b_n[0], b_n[1], b_n[2]);
-  // printf("vertex normal: %f %f %f\n", m_n[0], m_n[1], m_n[2]);
-  // printf("vertex normal: %f %f %f\n\n", t_n[0], t_n[1], t_n[2]);
+	t_n = search(points->m[0][top], points->m[1][top], points->m[2][top]);
 
 	b_c = get_lighting(b_n, view, ambient, light, areflect, dreflect, sreflect);
 	m_c = get_lighting(m_n, view, ambient, light, areflect, dreflect, sreflect);
@@ -192,7 +179,7 @@ void shade_gouraud(struct matrix *points, int i, screen s, zbuffer zb,
 		printf("c0: ");
 		print_color(c0);
 		printf("| c1: ");
-    print_color(c1);
+		print_color(c1);
 		printf("x0: %0.2f | x1: %0.2f | y: %d | dc1[0]: %0.2f\n", x0, x1, y, dc1[0]);
 		*/
 		x0 += dx0;
@@ -224,7 +211,7 @@ void shade_gouraud(struct matrix *points, int i, screen s, zbuffer zb,
 			c1_exact[2] = c1.blue = m_c.blue;
 			dc1[0] = distance2 > 0 ? (t_c.red - m_c.red) * 1.0 / distance2 : 0;
 			dc1[1] = distance2 > 0 ? (t_c.green - m_c.green) * 1.0 / distance2 : 0;
-      dc1[2] = distance2 > 0 ? (t_c.blue - m_c.blue) * 1.0 / distance2 : 0;
+			dc1[2] = distance2 > 0 ? (t_c.blue - m_c.blue) * 1.0 / distance2 : 0;
 		}
 	}
 }

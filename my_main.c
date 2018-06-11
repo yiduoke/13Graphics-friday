@@ -232,7 +232,7 @@ double get_val(struct vary_node *n, char *name) {
   0487
   ====================*/
 void my_main() {
-	int i, j;
+	int i, j, shading; // 0 for flat, 1 for Gouraud, 2 for Phong(?)
 	struct vary_node **knobs;
 	struct matrix *tmp;
 	struct stack *systems;
@@ -242,7 +242,7 @@ void my_main() {
 	g.red = 0;
 	g.green = 0;
 	g.blue = 0;
-	double step_3d = 100;
+	double step_3d = 13;
 	double theta;
 	double knob_value, xval, yval, zval, val;
 	SYMTAB *tab;
@@ -304,6 +304,11 @@ void my_main() {
 		for (i = 0; i < lastop; i ++) {
 			//printf("%d: ",i);
 			switch (op[i].opcode) {
+				case SHADING:
+					tab = op[i].op.shading.p;
+					if (strcmp(tab->name, "flat") == 0) shading = 0;
+					else if (strcmp(tab->name, "gouraud") == 0) shading = 1;
+					break;
 				case AMBIENT:
 					ambient.red = op[i].op.ambient.c[0];
 					ambient.green = op[i].op.ambient.c[1];
@@ -348,8 +353,8 @@ void my_main() {
 						            op[i].op.sphere.d[2],
 						            op[i].op.sphere.r, step_3d);
 					matrix_mult(peek(systems), tmp);
-					//draw_polygons(tmp, t, zb, view, light, ambient, areflect, dreflect, sreflect);
-					draw_gouraud(tmp, t, zb, view, light, ambient, areflect, dreflect, sreflect);
+					if (shading == 0) draw_polygons(tmp, t, zb, view, light, ambient, areflect, dreflect, sreflect);
+					else if (shading == 1) draw_gouraud(tmp, t, zb, view, light, ambient, areflect, dreflect, sreflect);
 					tmp->lastcol = 0;
 					break;
 				case TORUS:
@@ -380,8 +385,8 @@ void my_main() {
 						           op[i].op.torus.d[2],
 						           op[i].op.torus.r0, op[i].op.torus.r1, step_3d);
 					matrix_mult(peek(systems), tmp);
-					// draw_polygons(tmp, t, zb, view, light, ambient, areflect, dreflect, sreflect);
-					draw_gouraud(tmp, t, zb, view, light, ambient, areflect, dreflect, sreflect);
+					if (shading == 0) draw_polygons(tmp, t, zb, view, light, ambient, areflect, dreflect, sreflect);
+					else if (shading == 1) draw_gouraud(tmp, t, zb, view, light, ambient, areflect, dreflect, sreflect);
 					tmp->lastcol = 0;
 					break;
 				case BOX:
@@ -415,8 +420,8 @@ void my_main() {
 						         op[i].op.box.d1[1],
 						         op[i].op.box.d1[2]);
 					matrix_mult(peek(systems), tmp);
-					// draw_polygons(tmp, t, zb, view, light, ambient, areflect, dreflect, sreflect);
-					draw_gouraud(tmp, t, zb, view, light, ambient, areflect, dreflect, sreflect);
+					if (shading == 0) draw_polygons(tmp, t, zb, view, light, ambient, areflect, dreflect, sreflect);
+					else if (shading == 1) draw_gouraud(tmp, t, zb, view, light, ambient, areflect, dreflect, sreflect);
 					tmp->lastcol = 0;
 					break;
 				case LINE:

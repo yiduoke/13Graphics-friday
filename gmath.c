@@ -28,7 +28,7 @@ color get_lighting(double *normal, double *view, color alight, double light[2][3
 			light[COLOR][BLUE] = tab->s.l->c[2];
 
 			a = calculate_ambient(alight, areflect);
-      d = calculate_diffuse(light, dreflect, normal);
+			d = calculate_diffuse(light, dreflect, normal);
 			s = calculate_specular(light, sreflect, view, normal);
 
 			i.red += a.red + d.red + s.red;
