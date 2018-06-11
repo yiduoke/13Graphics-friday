@@ -32,9 +32,9 @@ void insert(double key0, double key1, double key2, double data0, double data1, d
             item->key[0] = key0;
             item->key[1] = key1;
             item->key[2] = key2;
-            item->vertex_normal[0] += data0;
-			item->vertex_normal[1] += data1;
-			item->vertex_normal[2] += data2;
+            item->vertex_normal[0] = data0;
+			item->vertex_normal[1] = data1;
+			item->vertex_normal[2] = data2;
             hashArray[i] = item;
             return;
         }

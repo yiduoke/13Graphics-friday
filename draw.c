@@ -37,7 +37,8 @@ void draw_gouraud(struct matrix *polygons, screen s, zbuffer zb,
 	for (point = 0; point < polygons->lastcol - 2; point += 3) {
 		normal = calculate_normal(polygons, point);
 		if (dot_product(normal, view) > 0) {
-			color c = get_lighting(normal, view, ambient, light, areflect, dreflect, sreflect);
+      color c = get_lighting(normal, view, ambient, light, areflect, dreflect, sreflect);
+      // printf("surface normal: %f %f %f\n", normal[0], normal[1], normal[2]);
 			shade_gouraud(polygons, point, s, zb, view, light, ambient, areflect, dreflect, sreflect);
 			//scanline_convert(polygons, point, s, zb, c);
 			/*
@@ -127,7 +128,19 @@ void shade_gouraud(struct matrix *points, int i, screen s, zbuffer zb,
 	// The b/m/t correspond to bottom/middle/top vertex. The A and B will denote the colors of the endpoints of the horizontal scalines
 	b_n = search(points->m[0][bot], points->m[1][bot], points->m[2][bot]);
 	m_n = search(points->m[0][mid], points->m[1][mid], points->m[2][mid]);
-	t_n = search(points->m[0][top], points->m[1][top], points->m[2][top]);
+  t_n = search(points->m[0][top], points->m[1][top], points->m[2][top]);
+
+  // normalize(b_n);
+  // normalize(m_n);
+  // normalize(t_n);
+
+  // printf("dot product of bottom vertex & view: %f\n", dot_product(b_n, view));
+  // printf("dot product of middle vertex & view: %f\n", dot_product(m_n, view));
+  // printf("dot product of top vertex & view: %f\n\n", dot_product(t_n, view));
+  // printf("vertex normal: %f %f %f\n", b_n[0], b_n[1], b_n[2]);
+  // printf("vertex normal: %f %f %f\n", m_n[0], m_n[1], m_n[2]);
+  // printf("vertex normal: %f %f %f\n\n", t_n[0], t_n[1], t_n[2]);
+
 	b_c = get_lighting(b_n, view, ambient, light, areflect, dreflect, sreflect);
 	m_c = get_lighting(m_n, view, ambient, light, areflect, dreflect, sreflect);
 	t_c = get_lighting(t_n, view, ambient, light, areflect, dreflect, sreflect);
@@ -146,9 +159,9 @@ void shade_gouraud(struct matrix *points, int i, screen s, zbuffer zb,
 	c0_exact[2] = c1_exact[2] = b_c.blue;
 	y = (int)(points->m[1][bot]);
 	//printf("c0:%d %d %d | c1:%d %d %d\n", c0.red, c0.green, c0.blue, c1.red, c1.green, c1.blue);
-	distance0 = (int)(points->m[1][top]) - y;
-	distance1 = (int)(points->m[1][mid]) - y;
-	distance2 = (int)(points->m[1][top]) - (int)(points->m[1][mid]);
+	distance0 = (int)(points->m[1][top]) - y; //top ~ bottom distance
+	distance1 = (int)(points->m[1][mid]) - y; // mid ~ bottom distance
+	distance2 = (int)(points->m[1][top]) - (int)(points->m[1][mid]); // top ~ mid distance
 
 	dx0 = distance0 > 0 ? (points->m[0][top] - points->m[0][bot]) / distance0 : 0;
 	dx1 = distance1 > 0 ? (points->m[0][mid] - points->m[0][bot]) / distance1 : 0;
@@ -188,10 +201,11 @@ void shade_gouraud(struct matrix *points, int i, screen s, zbuffer zb,
 			dx1 = distance2 > 0 ? (points->m[0][top] - points->m[0][mid]) / distance2 : 0;
 			dz1 = distance2 > 0 ? (points->m[2][top] - points->m[2][mid]) / distance2 : 0;
 			x1 = points->m[0][mid];
-			z1 = points->m[2][mid];
+      z1 = points->m[2][mid];
+      
 			dc1[0] = distance2 > 0 ? (t_c.red - m_c.red) / distance2 : 0;
 			dc1[1] = distance2 > 0 ? (t_c.green - m_c.green) / distance2 : 0;
-			dc1[2] = distance2 > 0 ? (t_c.blue - m_c.blue) / distance2 : 0;
+      dc1[2] = distance2 > 0 ? (t_c.blue - m_c.blue) / distance2 : 0;
 		}
 	}
 }
