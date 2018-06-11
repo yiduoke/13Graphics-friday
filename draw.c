@@ -33,7 +33,6 @@ void draw_gouraud(struct matrix *polygons, screen s, zbuffer zb,
 		insert(polygons->m[0][point + 2], polygons->m[1][point + 2], polygons->m[2][point + 2],
 		normal[0], normal[1], normal[2]);
 	}
-	
 	for (point = 0; point < polygons->lastcol - 2; point += 3) {
 		normal = calculate_normal(polygons, point);
 		if (dot_product(normal, view) > 0) {
@@ -41,7 +40,6 @@ void draw_gouraud(struct matrix *polygons, screen s, zbuffer zb,
       // printf("surface normal: %f %f %f\n", normal[0], normal[1], normal[2]);
 			shade_gouraud(polygons, point, s, zb, view, light, ambient, areflect, dreflect, sreflect);
 			//scanline_convert(polygons, point, s, zb, c);
-			/*
 			double *n0 = search(polygons->m[0][point], polygons->m[1][point], polygons->m[2][point]);
 			double *n1 = search(polygons->m[0][point + 1], polygons->m[1][point + 1], polygons->m[2][point + 1]);
 			double *n2 = search(polygons->m[0][point + 2], polygons->m[1][point + 2], polygons->m[2][point + 2]);
@@ -70,7 +68,7 @@ void draw_gouraud(struct matrix *polygons, screen s, zbuffer zb,
 	        		             polygons->m[1][point+2],
 	        		             polygons->m[2][point+2],
 	        		             s, zb, c0, c2);
-			*/
+			
 		}
 	}
 }
@@ -130,6 +128,7 @@ void shade_gouraud(struct matrix *points, int i, screen s, zbuffer zb,
 	m_n = search(points->m[0][mid], points->m[1][mid], points->m[2][mid]);
   t_n = search(points->m[0][top], points->m[1][top], points->m[2][top]);
 
+	//printf("Vertex normal: %0.2f %0.2f %0.2f\n", b_n[0], b_n[1], b_n[2]);
   // normalize(b_n);
   // normalize(m_n);
   // normalize(t_n);
@@ -151,9 +150,17 @@ void shade_gouraud(struct matrix *points, int i, screen s, zbuffer zb,
 	c0.red = c1.red = b_c.red;
 	c0.green = c1.green = b_c.green;
 	c0.blue = c1.blue = b_c.blue;
-	//print_color(c0);
-	//print_color(c1);
-	//printf("\n");
+	/*
+	printf("Bot: %0.2f %0.2f %0.2f ", points->m[0][bot], points->m[1][bot], points->m[2][bot]);
+	print_color(b_c);
+	printf("\n");
+	printf("Mid: %0.2f %0.2f %0.2f ", points->m[0][mid], points->m[1][mid], points->m[2][mid]);
+	print_color(m_c);
+	printf("\n");
+	printf("Top: %0.2f %0.2f %0.2f ", points->m[0][top], points->m[1][top], points->m[2][top]);
+	print_color(t_c);
+	printf("\n");
+	*/
 	c0_exact[0] = c1_exact[0] = b_c.red;
 	c0_exact[1] = c1_exact[1] = b_c.green;
 	c0_exact[2] = c1_exact[2] = b_c.blue;
@@ -162,23 +169,32 @@ void shade_gouraud(struct matrix *points, int i, screen s, zbuffer zb,
 	distance0 = (int)(points->m[1][top]) - y; //top ~ bottom distance
 	distance1 = (int)(points->m[1][mid]) - y; // mid ~ bottom distance
 	distance2 = (int)(points->m[1][top]) - (int)(points->m[1][mid]); // top ~ mid distance
-
+	//printf("Distances %d %d %d\n", distance0, distance1, distance2);
 	dx0 = distance0 > 0 ? (points->m[0][top] - points->m[0][bot]) / distance0 : 0;
 	dx1 = distance1 > 0 ? (points->m[0][mid] - points->m[0][bot]) / distance1 : 0;
 	dz0 = distance0 > 0 ? (points->m[2][top] - points->m[2][bot]) / distance0 : 0;
 	dz1 = distance1 > 0 ? (points->m[2][mid] - points->m[2][bot]) / distance1 : 0;
-	dc0[0] = distance0 > 0 ? (t_c.red - b_c.red) / distance0 : 0;
-	dc0[1] = distance0 > 0 ? (t_c.green - b_c.green) / distance0 : 0;
-	dc0[2] = distance0 > 0 ? (t_c.blue - b_c.blue) / distance0 : 0;
-	dc1[0] = distance1 > 0 ? (m_c.red - b_c.red) / distance1 : 0;
-	dc1[1] = distance1 > 0 ? (m_c.green - b_c.green) / distance1 : 0;
-	dc1[2] = distance1 > 0 ? (m_c.blue - b_c.blue) / distance1 : 0;
-
+	dc0[0] = distance0 > 0 ? (t_c.red - b_c.red) * 1.0 / distance0 : 0;
+	dc0[1] = distance0 > 0 ? (t_c.green - b_c.green) * 1.0 / distance0 : 0;
+	dc0[2] = distance0 > 0 ? (t_c.blue - b_c.blue) * 1.0 / distance0 : 0;
+	dc1[0] = distance1 > 0 ? (m_c.red - b_c.red) * 1.0 / distance1 : 0;
+	dc1[1] = distance1 > 0 ? (m_c.green - b_c.green) * 1.0 / distance1 : 0;
+	dc1[2] = distance1 > 0 ? (m_c.blue - b_c.blue) * 1.0 / distance1 : 0;
+	/*
+	printf("dx: %0.2f %0.2f\n", dx0, dx1);
+	printf("dc0: %0.2f %0.2f %0.2f\n", dc0[0], dc0[1], dc0[2]);
+	printf("dc1: %0.2f %0.2f %0.2f\n", dc1[0], dc1[1], dc1[2]);
+	*/
 	while (y <= (int)points->m[1][top]) {
 		draw_line_with_color(x0, y, z0, x1, y, z1, s, zb, c0, c1);
 		//draw_line(x0, y, z0, x1, y, z1, s, zb, c0);
-		//print_color(c0);
-		//print_color(c1);
+		/*
+		printf("c0: ");
+		print_color(c0);
+		printf("| c1: ");
+    print_color(c1);
+		printf("x0: %0.2f | x1: %0.2f | y: %d | dc1[0]: %0.2f\n", x0, x1, y, dc1[0]);
+		*/
 		x0 += dx0;
 		x1 += dx1;
 		z0 += dz0;
@@ -197,15 +213,18 @@ void shade_gouraud(struct matrix *points, int i, screen s, zbuffer zb,
 		c1.blue = (int)(c1_exact[2]);
 		y ++;
 		if (!flip && y >= (int)(points->m[1][mid])) {
+			//printf("Flipping\n");
 			flip = 1;
 			dx1 = distance2 > 0 ? (points->m[0][top] - points->m[0][mid]) / distance2 : 0;
 			dz1 = distance2 > 0 ? (points->m[2][top] - points->m[2][mid]) / distance2 : 0;
 			x1 = points->m[0][mid];
-      z1 = points->m[2][mid];
-      
-			dc1[0] = distance2 > 0 ? (t_c.red - m_c.red) / distance2 : 0;
-			dc1[1] = distance2 > 0 ? (t_c.green - m_c.green) / distance2 : 0;
-      dc1[2] = distance2 > 0 ? (t_c.blue - m_c.blue) / distance2 : 0;
+			z1 = points->m[2][mid];
+			c1_exact[0] = c1.red = m_c.red;
+			c1_exact[1] = c1.green = m_c.green;
+			c1_exact[2] = c1.blue = m_c.blue;
+			dc1[0] = distance2 > 0 ? (t_c.red - m_c.red) * 1.0 / distance2 : 0;
+			dc1[1] = distance2 > 0 ? (t_c.green - m_c.green) * 1.0 / distance2 : 0;
+      dc1[2] = distance2 > 0 ? (t_c.blue - m_c.blue) * 1.0 / distance2 : 0;
 		}
 	}
 }
@@ -926,8 +945,15 @@ void draw_line_with_color(int x0, int y0, double z0,
 	c1.red = ct.red;
 	c1.green = ct.green;
 	c1.blue = ct.blue;
-  }
-  //printf("c0:%d %d %d | c1:%d %d %d %d\n", c0.red, c0.green, c0.blue, c1.red, c1.green, c1.blue);
+	}
+	/*
+	printf("DRAW LINE WITH COLOR\n");
+	printf("c0: ");
+	print_color(c0);
+	printf("| c1: ");
+	print_color(c1);
+	printf("x0: %d | x1: %d | y0: %d | y1: %d\n", x0, x1, y0, y1);
+	*/
   x = x0;
   y = y0;
   A = 2 * (y1 - y0);
@@ -991,9 +1017,9 @@ void draw_line_with_color(int x0, int y0, double z0,
   // printf("870\n");
 
   if (loop_end != loop_start){
-    dred = (c1.red - c0.red) / (loop_end - loop_start);
-    dgreen = (c1.green - c0.green) / (loop_end - loop_start);
-    dblue = (c1.blue - c0.blue) / (loop_end - loop_start);
+    dred = (c1.red - c0.red) * 1.0 / (loop_end - loop_start);
+    dgreen = (c1.green - c0.green) * 1.0 / (loop_end - loop_start);
+    dblue = (c1.blue - c0.blue) * 1.0 / (loop_end - loop_start);
   }
 
   double diff = loop_start;

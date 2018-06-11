@@ -6,6 +6,7 @@
 #include "matrix.h"
 #include "ml6.h"
 #include "symtab.h"
+#include "draw.h"
 
 //lighting functions
 color get_lighting(double *normal, double *view, color alight, double light[2][3], double *areflect, double *dreflect, double *sreflect) {
@@ -27,7 +28,7 @@ color get_lighting(double *normal, double *view, color alight, double light[2][3
 			light[COLOR][BLUE] = tab->s.l->c[2];
 
 			a = calculate_ambient(alight, areflect);
-			d = calculate_diffuse(light, dreflect, normal);
+      d = calculate_diffuse(light, dreflect, normal);
 			s = calculate_specular(light, sreflect, view, normal);
 
 			i.red += a.red + d.red + s.red;
@@ -59,6 +60,8 @@ color calculate_diffuse(double light[2][3], double *dreflect, double *normal ) {
   lvector[1] = light[LOCATION][1];
   lvector[2] = light[LOCATION][2];
   normalize(lvector);
+	//printf("Light vector: %0.2f %0.2f %0.2f\n", lvector[0], lvector[1], lvector[2]);
+  //printf("Normal vector: %0.2f %0.2f %0.2f\n", normal[0], normal[1], normal[2]);
 
   dot = dot_product(normal, lvector);
 
@@ -66,6 +69,12 @@ color calculate_diffuse(double light[2][3], double *dreflect, double *normal ) {
   d.green = (int)(light[COLOR][GREEN] * dreflect[GREEN] * dot);
   d.blue = (int)(light[COLOR][BLUE] * dreflect[BLUE] * dot);
 
+  /*
+  printf("diffuse: ");
+  print_color(d);
+  printf("\n");
+  */
+  limit_color(&d);
   return d;
 }
 
