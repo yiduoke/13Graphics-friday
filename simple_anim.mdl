@@ -1,6 +1,6 @@
 frames 100
 basename simple
-shading gouraud
+shading phong
 push
 move 250 250 0
 light meow -1 0 0 255 0 0

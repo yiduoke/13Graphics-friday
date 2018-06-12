@@ -308,6 +308,7 @@ void my_main() {
 					tab = op[i].op.shading.p;
 					if (strcmp(tab->name, "flat") == 0) shading = 0;
 					else if (strcmp(tab->name, "gouraud") == 0) shading = 1;
+					else if (strcmp(tab->name, "phong") == 0) shading = 2;
 					break;
 				case AMBIENT:
 					ambient.red = op[i].op.ambient.c[0];
@@ -355,6 +356,7 @@ void my_main() {
 					matrix_mult(peek(systems), tmp);
 					if (shading == 0) draw_polygons(tmp, t, zb, view, light, ambient, areflect, dreflect, sreflect);
 					else if (shading == 1) draw_gouraud(tmp, t, zb, view, light, ambient, areflect, dreflect, sreflect);
+					else if (shading == 2) draw_phong(tmp, t, zb, view, light, ambient, areflect, dreflect, sreflect);
 					tmp->lastcol = 0;
 					break;
 				case TORUS:
@@ -387,6 +389,7 @@ void my_main() {
 					matrix_mult(peek(systems), tmp);
 					if (shading == 0) draw_polygons(tmp, t, zb, view, light, ambient, areflect, dreflect, sreflect);
 					else if (shading == 1) draw_gouraud(tmp, t, zb, view, light, ambient, areflect, dreflect, sreflect);
+					else if (shading == 2) draw_phong(tmp, t, zb, view, light, ambient, areflect, dreflect, sreflect);
 					tmp->lastcol = 0;
 					break;
 				case BOX:
@@ -422,6 +425,7 @@ void my_main() {
 					matrix_mult(peek(systems), tmp);
 					if (shading == 0) draw_polygons(tmp, t, zb, view, light, ambient, areflect, dreflect, sreflect);
 					else if (shading == 1) draw_gouraud(tmp, t, zb, view, light, ambient, areflect, dreflect, sreflect);
+					else if (shading == 2) draw_phong(tmp, t, zb, view, light, ambient, areflect, dreflect, sreflect);
 					tmp->lastcol = 0;
 					break;
 				case LINE:

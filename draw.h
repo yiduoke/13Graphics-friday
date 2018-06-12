@@ -57,5 +57,11 @@ void draw_line(int x0, int y0, double z0,
                screen s, zbuffer zb, color c);
 void print_color(color c);
 void gouraud_shading(struct matrix *polygons, screen s, zbuffer zbuf, double *view, double light[2][3], color ambient, double *areflect, double *dreflect, double *sreflect);
+void shade_phong(struct matrix *points, int i, screen s, zbuffer zb,
+	double *view, double light[2][3], color ambient,
+		double *areflect, double *dreflect, double *sreflect);
 void draw_line_with_color(int x0, int y0, double z0, int x1, int y1, double z1, screen s, zbuffer zb, color c1, color c2);
+void draw_line_with_normal(int x0, int y0, double z0,
+	int x1, int y1, double z1,
+	screen s, zbuffer zb, double normal0[3], double normal1[3], double* view, color alight, double light[2][3], double* areflect, double* dreflect, double* sreflect);
 #endif
