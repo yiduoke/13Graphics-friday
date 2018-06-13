@@ -354,7 +354,7 @@ void my_main() {
 						            op[i].op.sphere.d[2],
 						            op[i].op.sphere.r, step_3d);
 					matrix_mult(peek(systems), tmp);
-					if (shading == 0) draw_polygons(tmp, t, zb, view, light, ambient, areflect, dreflect, sreflect);
+					if (shading == 0) draw_flat(tmp, t, zb, view, light, ambient, areflect, dreflect, sreflect);
 					else if (shading == 1) draw_gouraud(tmp, t, zb, view, light, ambient, areflect, dreflect, sreflect);
 					else if (shading == 2) draw_phong(tmp, t, zb, view, light, ambient, areflect, dreflect, sreflect);
 					tmp->lastcol = 0;
@@ -387,7 +387,7 @@ void my_main() {
 						           op[i].op.torus.d[2],
 						           op[i].op.torus.r0, op[i].op.torus.r1, step_3d);
 					matrix_mult(peek(systems), tmp);
-					if (shading == 0) draw_polygons(tmp, t, zb, view, light, ambient, areflect, dreflect, sreflect);
+					if (shading == 0) draw_flat(tmp, t, zb, view, light, ambient, areflect, dreflect, sreflect);
 					else if (shading == 1) draw_gouraud(tmp, t, zb, view, light, ambient, areflect, dreflect, sreflect);
 					else if (shading == 2) draw_phong(tmp, t, zb, view, light, ambient, areflect, dreflect, sreflect);
 					tmp->lastcol = 0;
@@ -423,7 +423,7 @@ void my_main() {
 						         op[i].op.box.d1[1],
 						         op[i].op.box.d1[2]);
 					matrix_mult(peek(systems), tmp);
-					if (shading == 0) draw_polygons(tmp, t, zb, view, light, ambient, areflect, dreflect, sreflect);
+					if (shading == 0) draw_flat(tmp, t, zb, view, light, ambient, areflect, dreflect, sreflect);
 					else if (shading == 1) draw_gouraud(tmp, t, zb, view, light, ambient, areflect, dreflect, sreflect);
 					else if (shading == 2) draw_phong(tmp, t, zb, view, light, ambient, areflect, dreflect, sreflect);
 					tmp->lastcol = 0;

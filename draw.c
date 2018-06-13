@@ -13,8 +13,8 @@
 #include "hash.h"
 
 void draw_phong(struct matrix *polygons, screen s, zbuffer zb,
-	double *view, double light[2][3], color ambient,
-	double *areflect, double *dreflect, double *sreflect) {
+                double *view, double light[2][3], color ambient,
+                double *areflect, double *dreflect, double *sreflect) {
 	if (polygons->lastcol < 3) {
 		printf("Need at least 3 points to draw a polygon!\n");
 		return;
@@ -37,14 +37,31 @@ void draw_phong(struct matrix *polygons, screen s, zbuffer zb,
 		normal = calculate_normal(polygons, point);
 		if (dot_product(normal, view) > 0) {
 			shade_phong(polygons, point, s, zb, view, light, ambient, areflect, dreflect, sreflect);
+			double *n0 = search(polygons->m[0][point], polygons->m[1][point], polygons->m[2][point]);
+			double *n1 = search(polygons->m[0][point + 1], polygons->m[1][point + 1], polygons->m[2][point + 1]);
+			double *n2 = search(polygons->m[0][point + 2], polygons->m[1][point + 2], polygons->m[2][point + 2]);
+			/*
+			draw_line_with_normal(polygons->m[0][point], polygons->m[1][point], polygons->m[2][point],
+                                  polygons->m[0][point+1], polygons->m[1][point+1], polygons->m[2][point+1],
+                                  s, zb, n0, n1, view, light, ambient, areflect, dreflect, sreflect);
+			draw_line_with_normal(polygons->m[0][point+1], polygons->m[1][point+1], polygons->m[2][point+1],
+                                  polygons->m[0][point+2], polygons->m[1][point+2], polygons->m[2][point+2],
+                                  s, zb, n1, n2, view, light, ambient, areflect, dreflect, sreflect);
+			draw_line_with_normal(polygons->m[0][point], polygons->m[1][point], polygons->m[2][point],
+                                  polygons->m[0][point+2], polygons->m[1][point+2], polygons->m[2][point+2],
+                                  s, zb, n0, n2, view, light, ambient, areflect, dreflect, sreflect);
+			*/
 		}
 	}
 }
 
-void shade_phong(struct matrix *points, int i, screen s, zbuffer zb,
-	double *view, double light[2][3], color ambient,
-		double *areflect, double *dreflect, double *sreflect) {
+void print_normal(double normal[3]) {
+	printf("%0.2f %0.2f %0.2f ", normal[0], normal[1], normal[2]);
+}
 
+void shade_phong(struct matrix *points, int i, screen s, zbuffer zb,
+                 double *view, double light[2][3], color ambient,
+                 double *areflect, double *dreflect, double *sreflect) {
 	int bot, mid, top, y;
 	int distance0, distance1, distance2;
 	double x0, x1, dx0, dx1, y0, y1, y2, z0, z1, dz0, dz1;
@@ -105,6 +122,18 @@ void shade_phong(struct matrix *points, int i, screen s, zbuffer zb,
 	z0 = points->m[2][bot];
 	z1 = points->m[2][bot];
 
+	/*
+	printf("Bot: %0.2f %0.2f %0.2f ", points->m[0][bot], points->m[1][bot], points->m[2][bot]);
+	print_normal(b_n);
+	printf("\n");
+	printf("Mid: %0.2f %0.2f %0.2f ", points->m[0][mid], points->m[1][mid], points->m[2][mid]);
+	print_normal(m_n);
+	printf("\n");
+	printf("Top: %0.2f %0.2f %0.2f ", points->m[0][top], points->m[1][top], points->m[2][top]);
+	print_normal(t_n);
+	printf("\n");
+	*/
+
 	y = (int)(points->m[1][bot]);
 
 	distance0 = (int)(points->m[1][top]) - y; //top ~ bottom distance
@@ -122,8 +151,30 @@ void shade_phong(struct matrix *points, int i, screen s, zbuffer zb,
 	dn1[1] = distance1 > 0 ? (m_n[1] - b_n[1]) * 1.0 / distance1 : 0; // middle bottom y diff
 	dn1[2] = distance1 > 0 ? (m_n[2] - b_n[2]) * 1.0 / distance1 : 0; // middle bottom z diff
 
+	/*
+	printf("dx: %0.2f %0.2f\n", dx0, dx1);
+	printf("dn0: %0.2f %0.2f %0.2f\n", dn0[0], dn0[1], dn0[2]);
+	printf("dn1: %0.2f %0.2f %0.2f\n", dn1[0], dn1[1], dn1[2]);
+	*/
 	while (y <= (int)points->m[1][top]) {
-		draw_line_with_normal(x0, y, z0, x1, y, z1, s, zb, n0, n1, view, ambient, light, areflect, dreflect, sreflect);
+		double n0_temp[3], n1_temp[3]; // Arrays are passed by reference, so we make a copy of the array to pass on
+		n0_temp[0] = n0[0];
+		n0_temp[1] = n0[1];
+		n0_temp[2] = n0[2];
+		n1_temp[0] = n1[0];
+		n1_temp[1] = n1[1];
+		n1_temp[2] = n1[2];
+		draw_line_with_normal(x0, y, z0, x1, y, z1, s, zb, n0_temp, n1_temp, view, light, ambient, areflect, dreflect, sreflect);
+		/*
+		printf("n0: ");
+		print_normal(n0);
+		printf("| n1: ");
+		print_normal(n1);
+		printf("x0: %0.2f | x1: %0.2f | y: %d", x0, x1, y);
+		//printf(" | dn0: %0.2f %0.2f %0.2f", dn0[0], dn0[1], dn0[2]);
+		//printf(" | dn1: %0.2f %0.2f %0.2f", dn1[0], dn1[1], dn1[2]);
+		printf("\n");
+		*/
 		x0 += dx0;
 		x1 += dx1;
 		z0 += dz0;
@@ -137,7 +188,8 @@ void shade_phong(struct matrix *points, int i, screen s, zbuffer zb,
 		n1[2] += dn1[2];
 
 		y ++;
-		if (!flip && y >= (int)(points->m[1][mid])){
+		if (!flip && y >= (int)(points->m[1][mid])) {
+			//printf("Flipping\n");
 			flip = 1;
 			dx1 = distance2 > 0 ? (points->m[0][top] - points->m[0][mid]) / distance2 : 0;
 			dz1 = distance2 > 0 ? (points->m[2][top] - points->m[2][mid]) / distance2 : 0;
@@ -154,8 +206,8 @@ void shade_phong(struct matrix *points, int i, screen s, zbuffer zb,
 }
 
 void draw_gouraud(struct matrix *polygons, screen s, zbuffer zb,
-									double *view, double light[2][3], color ambient,
-									double *areflect, double *dreflect, double *sreflect) {
+                  double *view, double light[2][3], color ambient,
+                  double *areflect, double *dreflect, double *sreflect) {
 	if (polygons->lastcol < 3) {
 		printf("Need at least 3 points to draw a polygon!\n");
 		return;
@@ -177,8 +229,7 @@ void draw_gouraud(struct matrix *polygons, screen s, zbuffer zb,
 	for (point = 0; point < polygons->lastcol - 2; point += 3) {
 		normal = calculate_normal(polygons, point);
 		if (dot_product(normal, view) > 0) {
-			color c = get_lighting(normal, view, ambient, light, areflect, dreflect, sreflect);
-			// printf("surface normal: %f %f %f\n", normal[0], normal[1], normal[2]);
+			//printf("surface normal: %f %f %f\n", normal[0], normal[1], normal[2]);
 			shade_gouraud(polygons, point, s, zb, view, light, ambient, areflect, dreflect, sreflect);
 			//scanline_convert(polygons, point, s, zb, c);
 			double *n0 = search(polygons->m[0][point], polygons->m[1][point], polygons->m[2][point]);
@@ -189,26 +240,26 @@ void draw_gouraud(struct matrix *polygons, screen s, zbuffer zb,
 			color c2 = get_lighting(n2, view, ambient, light, areflect, dreflect, sreflect);
 			//printf("c0: %d %d %d | c1: %d %d %d | c2: %d %d %d\n", c0.red, c0.green, c0.blue, c1.red, c1.green, c1.blue, c2.red, c2.green, c2.blue);
 			draw_line_with_color(polygons->m[0][point],
-													 polygons->m[1][point],
-													 polygons->m[2][point],
-													 polygons->m[0][point+1],
-													 polygons->m[1][point+1],
-													 polygons->m[2][point+1],
-													 s, zb, c0, c1);
+                                 polygons->m[1][point],
+                                 polygons->m[2][point],
+                                 polygons->m[0][point+1],
+                                 polygons->m[1][point+1],
+                                 polygons->m[2][point+1],
+                                 s, zb, c0, c1);
 			draw_line_with_color(polygons->m[0][point+2],
-													 polygons->m[1][point+2],
-													 polygons->m[2][point+2],
-													 polygons->m[0][point+1],
-													 polygons->m[1][point+1],
-													 polygons->m[2][point+1],
-													 s, zb, c2, c1);
+                                 polygons->m[1][point+2],
+                                 polygons->m[2][point+2],
+                                 polygons->m[0][point+1],
+                                 polygons->m[1][point+1],
+                                 polygons->m[2][point+1],
+                                 s, zb, c2, c1);
 			draw_line_with_color(polygons->m[0][point],
-													 polygons->m[1][point],
-													 polygons->m[2][point],
-													 polygons->m[0][point+2],
-													 polygons->m[1][point+2],
-													 polygons->m[2][point+2],
-													 s, zb, c0, c2);			
+                                 polygons->m[1][point],
+                                 polygons->m[2][point],
+                                 polygons->m[0][point+2],
+                                 polygons->m[1][point+2],
+                                 polygons->m[2][point+2],
+                                 s, zb, c0, c2);			
 		}
 	}
 }
@@ -220,8 +271,8 @@ void print_color(color c) {
 
 //////////////////////////////////////////
 void shade_gouraud(struct matrix *points, int i, screen s, zbuffer zb,
-									 double *view, double light[2][3], color ambient,
-									 double *areflect, double *dreflect, double *sreflect) {
+                   double *view, double light[2][3], color ambient,
+                   double *areflect, double *dreflect, double *sreflect) {
 	int bot, mid, top, y;
 	int distance0, distance1, distance2;
 	double x0, x1, dx0, dx1, y0, y1, y2, z0, z1, dz0, dz1;
@@ -360,7 +411,7 @@ void shade_gouraud(struct matrix *points, int i, screen s, zbuffer zb,
 }
 
 
-/*======== void scanline_convert() ==========
+/*======== void shade_flat() ==========
 	Inputs: struct matrix *points
 					int i
 					screen s
@@ -371,7 +422,7 @@ void shade_gouraud(struct matrix *points, int i, screen s, zbuffer zb,
 
 	Color should be set differently for each polygon.
 	====================*/
-void scanline_convert(struct matrix *points, int i, screen s, zbuffer zb, color c) {
+void shade_flat(struct matrix *points, int i, screen s, zbuffer zb, color c) {
 	int top, mid, bot, y;
 	int distance0, distance1, distance2;
 	double x0, x1, y0, y1, y2, dx0, dx1, z0, z1, dz0, dz1;
@@ -482,7 +533,7 @@ void add_polygon( struct matrix *polygons,
 	add_point(polygons, x2, y2, z2);
 }
 
-/*======== void draw_polygons() ==========
+/*======== void draw_flat() ==========
 	Inputs:   struct matrix *polygons
 	screen s
 	color c
@@ -491,9 +542,9 @@ void add_polygon( struct matrix *polygons,
 	lines connecting each points to create bounding
 	triangles
 	====================*/
-void draw_polygons(struct matrix *polygons, screen s, zbuffer zb,
-									 double *view, double light[2][3], color ambient,
-									 double *areflect, double *dreflect, double *sreflect) {
+void draw_flat(struct matrix *polygons, screen s, zbuffer zb,
+               double *view, double light[2][3], color ambient,
+               double *areflect, double *dreflect, double *sreflect) {
 	if (polygons->lastcol < 3) {
 		printf("Need at least 3 points to draw a polygon!\n");
 		return;
@@ -506,7 +557,7 @@ void draw_polygons(struct matrix *polygons, screen s, zbuffer zb,
 		normal = calculate_normal(polygons, point);
 		if (dot_product(normal, view) > 0) {
 			color c = get_lighting(normal, view, ambient, light, areflect, dreflect, sreflect);
-			scanline_convert(polygons, point, s, zb, c);
+			shade_flat(polygons, point, s, zb, c);
 			draw_line(polygons->m[0][point],
 								polygons->m[1][point],
 								polygons->m[2][point],
@@ -922,7 +973,7 @@ void add_edge( struct matrix * points,
 	Go through points 2 at a time and call draw_line to add that line
 	to the screen
 	====================*/
-void draw_lines( struct matrix * points, screen s, zbuffer zb, color c) {
+void draw_lines(struct matrix * points, screen s, zbuffer zb, color c) {
 
 	if ( points->lastcol < 2 ) {
 		printf("Need at least 2 points to draw a line!\n");
@@ -943,8 +994,8 @@ void draw_lines( struct matrix * points, screen s, zbuffer zb, color c) {
 
 
 void draw_line(int x0, int y0, double z0,
-							 int x1, int y1, double z1,
-							 screen s, zbuffer zb, color c) {
+               int x1, int y1, double z1,
+               screen s, zbuffer zb, color c) {
 
 
 	int x, y, d, A, B;
@@ -1044,8 +1095,8 @@ void draw_line(int x0, int y0, double z0,
 } //end draw_line
 
 void draw_line_with_color(int x0, int y0, double z0,
-	int x1, int y1, double z1,
-	screen s, zbuffer zb, color c0, color c1) {
+                          int x1, int y1, double z1,
+                          screen s, zbuffer zb, color c0, color c1) {
 
 	int x, y, d, A, B;
 	int dy_east, dy_northeast, dx_east, dx_northeast, d_east, d_northeast;
@@ -1153,7 +1204,7 @@ void draw_line_with_color(int x0, int y0, double z0,
 	}
 
 	//printf("c0:%d %d %d | c1:%d %d %d | slope: %0.2f %0.2f %0.2f\n", c0.red, c0.green, c0.blue, c1.red, c1.green, c1.blue, dred, dgreen, dblue);
-	while ( loop_start < loop_end ) {
+	while (loop_start < loop_end ) {
 		plot( s, zb, c, x, y, z );
 		cred += dred;
 		cgreen += dgreen;
@@ -1183,8 +1234,10 @@ void draw_line_with_color(int x0, int y0, double z0,
 } //end draw_line
 
 void draw_line_with_normal(int x0, int y0, double z0,
-	int x1, int y1, double z1,
-	screen s, zbuffer zb, double normal0[3], double normal1[3], double* view, color alight, double light[2][3], double* areflect, double* dreflect, double* sreflect){
+                           int x1, int y1, double z1,
+                           screen s, zbuffer zb, double normal0[3], double normal1[3],
+                           double *view, double light[2][3], color ambient,
+                           double *areflect, double *dreflect, double *sreflect) {
 
 	int x, y, d, A, B;
 	int dy_east, dy_northeast, dx_east, dx_northeast, d_east, d_northeast;
@@ -1194,7 +1247,7 @@ void draw_line_with_normal(int x0, int y0, double z0,
 
 	//swap points if going right -> left
 	int xt, yt;
-	color ct;
+	double normal_t[3];
 	if (x0 > x1) {
 		xt = x0;
 		yt = y0;
@@ -1205,13 +1258,22 @@ void draw_line_with_normal(int x0, int y0, double z0,
 		x1 = xt;
 		y1 = yt;
 		z1 = z;
+		normal_t[0] = normal0[0];
+		normal_t[1] = normal0[1];
+		normal_t[2] = normal0[2];
+		normal0[0] = normal1[0];
+		normal0[1] = normal1[1];
+		normal0[2] = normal1[2];
+		normal1[0] = normal_t[0];
+		normal1[1] = normal_t[1];
+		normal1[2] = normal_t[2];
 	}
 	/*
-	printf("DRAW LINE WITH COLOR\n");
-	printf("c0: ");
-	print_color(c0);
-	printf("| c1: ");
-	print_color(c1);
+	printf("DRAW LINE WITH NORMAL\n");
+	printf("n0: ");
+	print_normal(normal0);
+	printf("| n1: ");
+	print_normal(normal1);
 	printf("x0: %d | x1: %d | y0: %d | y1: %d\n", x0, x1, y0, y1);
 	*/
 	x = x0;
@@ -1280,13 +1342,22 @@ void draw_line_with_normal(int x0, int y0, double z0,
 		dny = (normal1[1] - normal0[1]) * 1.0 / (loop_end - loop_start);
 		dnz = (normal1[2] - normal0[2]) * 1.0 / (loop_end - loop_start);
 	}
-
+	
 	color c;
-
-	//printf("c0:%d %d %d | c1:%d %d %d | slope: %0.2f %0.2f %0.2f\n", c0.red, c0.green, c0.blue, c1.red, c1.green, c1.blue, dred, dgreen, dblue);
-	while ( loop_start < loop_end ) {
-		c = get_lighting(normal, view, alight, light, areflect, dreflect, sreflect);
-		plot( s, zb, c, x, y, z );
+	//printf("Beginning loop:\n");
+	while (loop_start < loop_end ) {
+		double normal_temp[3];
+		normal_temp[0] = normal[0];
+		normal_temp[1] = normal[1];
+		normal_temp[2] = normal[2];
+		c = get_lighting(normal_temp, view, ambient, light, areflect, dreflect, sreflect);
+		plot(s, zb, c, x, y, z );
+		/*
+		printf("normal: ");
+		print_normal(normal);
+		printf(" | dnormal: %0.2f %0.2f %0.2f | loop size: %d", dnx, dny, dnz, loop_end - loop_start);
+		printf("\n");
+		*/
 		normal[0] += dnx;
 		normal[1] += dny;
 		normal[2] += dnz;
@@ -1308,6 +1379,13 @@ void draw_line_with_normal(int x0, int y0, double z0,
 		z+= dz;
 		loop_start++;
 	} //end drawing loop
-	c = get_lighting(normal1, view, alight, light, areflect, dreflect, sreflect);
+	/*
+	printf("normal: ");
+	print_normal(normal1);
+	printf(" | dnormal: %0.2f %0.2f %0.2f | loop size: %d", dnx, dny, dnz, loop_end - loop_start);
+	printf("\n");
+	*/
+	c = get_lighting(normal1, view, ambient, light, areflect, dreflect, sreflect);
 	plot( s, zb, c, x1, y1, z );
+	//printf("END OF DRAW LINE\n");
 } //end draw_line

@@ -4,8 +4,11 @@
 #include "matrix.h"
 #include "ml6.h"
 
-void scanline_convert( struct matrix *points, int i, screen s, zbuffer zb, color c );
+void shade_flat(struct matrix *points, int i, screen s, zbuffer zb, color c );
 void shade_gouraud(struct matrix *points, int i, screen s, zbuffer zb,
+                   double *view, double light[2][3], color ambient,
+                   double *areflect, double *dreflect, double *sreflect);
+void shade_phong(struct matrix *points, int i, screen s, zbuffer zb,
                    double *view, double light[2][3], color ambient,
                    double *areflect, double *dreflect, double *sreflect);
 
@@ -14,12 +17,16 @@ void add_polygons( struct matrix * points,
                    double x0, double y0, double z0,
                    double x1, double y1, double z1,
                    double x2, double y2, double z2);
-void draw_polygons( struct matrix * points, screen s, zbuffer zb,
+void draw_flat( struct matrix * points, screen s, zbuffer zb,
                     double *view, double light[2][3], color ambient,
                     double *areflect, double *dreflect, double *sreflect);
 void draw_gouraud(struct matrix *polygons, screen s, zbuffer zb,
                    double *view, double light[2][3], color ambient,
                    double *areflect, double *dreflect, double *sreflect);
+void draw_phong(struct matrix *polygons, screen s, zbuffer zb,
+                   double *view, double light[2][3], color ambient,
+                   double *areflect, double *dreflect, double *sreflect);
+
 
 //3d shapes
 void add_box( struct matrix * edges,
@@ -55,13 +62,17 @@ void draw_lines( struct matrix * points, screen s, zbuffer zb, color c);
 void draw_line(int x0, int y0, double z0,
                int x1, int y1, double z1,
                screen s, zbuffer zb, color c);
+
+void print_normal(double normal[3]);
 void print_color(color c);
 void gouraud_shading(struct matrix *polygons, screen s, zbuffer zbuf, double *view, double light[2][3], color ambient, double *areflect, double *dreflect, double *sreflect);
 void shade_phong(struct matrix *points, int i, screen s, zbuffer zb,
-	double *view, double light[2][3], color ambient,
-		double *areflect, double *dreflect, double *sreflect);
+                 double *view, double light[2][3], color ambient,
+                 double *areflect, double *dreflect, double *sreflect);
 void draw_line_with_color(int x0, int y0, double z0, int x1, int y1, double z1, screen s, zbuffer zb, color c1, color c2);
 void draw_line_with_normal(int x0, int y0, double z0,
-	int x1, int y1, double z1,
-	screen s, zbuffer zb, double normal0[3], double normal1[3], double* view, color alight, double light[2][3], double* areflect, double* dreflect, double* sreflect);
+                           int x1, int y1, double z1,
+                           screen s, zbuffer zb, double normal0[3], double normal1[3],
+                           double *view, double light[2][3], color ambient,
+                           double *areflect, double *dreflect, double *sreflect);
 #endif

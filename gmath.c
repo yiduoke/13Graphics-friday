@@ -103,6 +103,7 @@ color calculate_specular(double light[2][3], double *sreflect, double *view, dou
   s.green = (int)(light[COLOR][GREEN] * sreflect[GREEN] * result);
   s.blue = (int)(light[COLOR][BLUE] * sreflect[BLUE] * result);
 
+  limit_color(&s);
   return s;
 }
 
