@@ -39,6 +39,10 @@ struct matrix *polygons parse_mesh(char* file){
 			add_polygon(polygons, polygons->m[0][meower[0]], polygons->m[1][meower[0]], polygons->m[2][meower[0]],
 														polygons->m[0][meower[1]], polygons->m[1][meower[1]], polygons->m[2][meower[1]],
 														polygons->m[0][meower[2]], polygons->m[1][meower[2]], polygons->m[2][meower[2]]);
+														
+			add_polygon(polygons, polygons->m[0][meower[0]], polygons->m[1][meower[0]], polygons->m[2][meower[0]],
+														polygons->m[0][meower[1]], polygons->m[1][meower[1]], polygons->m[2][meower[1]],
+														polygons->m[0][meower[2]], polygons->m[1][meower[2]], polygons->m[2][meower[2]]);
 		}
 	}
 	
