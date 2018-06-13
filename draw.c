@@ -13,18 +13,6 @@
 #include "symtab.h"
 #include "hash.h"
 
-char ** parse_args( char * line ){
-    char ** output = (char**)calloc(5, sizeof("ugaediwbdhadkhwd"));
-    int i=0;
-    while (line){
-        char * str = strsep(&line," ");
-        output[i]= str;
-        i++;
-    }
-
-    return output;
-}
-
 void draw_phong(struct matrix *polygons, screen s, zbuffer zb,
                 double *view, double light[2][3], color ambient,
                 double *areflect, double *dreflect, double *sreflect) {
@@ -1403,61 +1391,95 @@ void draw_line_with_normal(int x0, int y0, double z0,
 	//printf("END OF DRAW LINE\n");
 } //end draw_line
 
-struct matrix *parse_mesh(char *file) {
-	//printf("PARSING MESH\n");
-	int num_columns = 999999;
-	FILE *fp;
-	char str[256];
-	double *vertices; // for vertices
-	int faces[1000]; // for faces
-	char command[10];
-	int num_vertices = 0;
-	struct matrix *polygons = new_matrix(4, num_columns);
-	
-	fp = fopen(file, "r");
-	if (!fp){
-		perror("cannot open this mesh file");
-		exit(0);
-	}
-	vertices = (double *)calloc(num_columns, sizeof(double));
+char **parse_args(char * line) {
+    char ** output = (char **)calloc(50, sizeof(char *)); // Unsure about how big the calloc should be, 50 is a safe overestimation
+    int i;
+    while (line) {
+        output[i] = strsep(&line, " ");
+        i++;
+    }
+    return output;
+}
 
-	while (fgets(str, sizeof(str), fp)) {
-		//printf("Got string %s\n", str);
-		if (num_vertices > num_columns) {
-			vertices = grow_array(vertices, num_columns, 2 * num_columns);
-			num_columns *= 2;
+struct matrix *parse_mesh(char *filename) {
+	printf("Parsing %s\n", filename);
+	FILE *f;
+	int num_vertices, num_faces, i;
+	char line[256];
+	struct matrix *polygons = new_matrix(4, 4);
+
+	f = fopen(filename, "r");
+	int longest_face;
+	while (fgets(line, sizeof(line), f)) {
+		if (!strncmp(line, "v", 1)) num_vertices ++;
+		else if (!strncmp(line, "f", 1)) num_faces ++;
+	}
+	//printf("num_vertices: %d\n", num_vertices);
+	//printf("num_faces: %d\n", num_faces);
+
+	double vertices[num_vertices + 1][3]; // Files start with line #1, not line #0; this just lets us map more easily
+	vertices[0][0] = -1;
+	vertices[0][1] = -1;
+	vertices[0][2] = -1;
+	char command[10];
+	int current_vertex = 1;
+	fclose(f);
+	f = fopen(filename, "r");
+
+	while (fgets(line, sizeof(line), f)) {
+		if (line[strlen(line) - 1] == '\n') {
+			line[strlen(line) - 1] = '\0'; //Strips the newline
 		}
-		if (!strncmp(str, "v", 1)) { // vertex command
-			//printf("vertex: ");
-			sscanf(str, "%s %lf %lf %lf", command, vertices+num_vertices, vertices+num_vertices+1, vertices+num_vertices+2);
-			//printf("%lf, %lf, %lf\n", vertices[num_vertices], vertices[num_vertices+1], vertices[num_vertices+2]);
-			num_vertices += 3;
+		if (!strncmp(line, "v", 1)) {
+			double v_temp[3]; // Temporary matrix to hold the coordinates of the current vertex
+			sscanf(line, "%s %lf %lf %lf", command, v_temp, v_temp + 1, v_temp + 2);
+			vertices[current_vertex][0] = v_temp[0];
+			vertices[current_vertex][1] = v_temp[1];
+			vertices[current_vertex][2] = v_temp[2];
+			current_vertex ++;
 		}
-		
-		else if (!strncmp(str, "f", 1)) { // vertex command
-			//printf("Str: %s", str); // str has a newline
-			char** things = parse_args(str);
-			int last = 0;
-			while(things[last]){
-				//printf("%s\n", things[last]);
-				
-				if (last){ // it's a number, not letter f
-					sscanf(things[last], "%d", faces + last);
-				}
-				last ++;
+		else if (!strncmp(line, "f", 1)) {
+			char **args = parse_args(line);
+			//printf("Output from parse_args:\n");
+			int num_args = 1; // Skipping 0, which is "f"
+			int face_verts[50]; // Arbitrarily large number of vertices
+			while (args[num_args]) {
+				//printf("\"%s\" ", args[num_args]);
+				sscanf(args[num_args], "%d", face_verts + num_args);
+				num_args ++;
 			}
-			int i;
-			//printf("Testing parsed str: ");
-			for (i = 2; i < last - 1; i ++) {
-				//printf("%d ", faces[i]);
-				add_polygon(polygons, vertices[(faces[1] - 1) * 3], vertices[(faces[1] - 1) * 3 + 1], vertices[(faces[1] - 1) * 3 + 2],
-				                      vertices[(faces[i] - 1) * 3], vertices[(faces[i] - 1) * 3 + 1], vertices[(faces[i] - 1) * 3 + 2],
-				                      vertices[(faces[i + 1] - 1) * 3], vertices[(faces[i + 1] - 1) * 3 + 1], vertices[(faces[i + 1] - 1) * 3 + 2]);
+			/*
+			printf("num_args: %d\n", num_args);
+			for (i = 1; i < 4; i ++) {
+				printf("face_verts[%d]: %d\n", i, face_verts[i]);
+			}
+			*/
+			for (i = 1; i < num_args - 2; i ++) {
+				double x0, y0, z0, x1, y1, z1, x2, y2, z2;
+				x0 = vertices[face_verts[i]][0];
+				y0 = vertices[face_verts[i]][1];
+				z0 = vertices[face_verts[i]][2];
+				x1 = vertices[face_verts[i + 1]][0];
+				y1 = vertices[face_verts[i + 1]][1];
+				z1 = vertices[face_verts[i + 1]][2];
+				x2 = vertices[face_verts[i + 2]][0];
+				y2 = vertices[face_verts[i + 2]][1];
+				z2 = vertices[face_verts[i + 2]][2];
+				add_polygon(polygons, x0, y0, z0, x1, y1, z1, x2, y2, z2);
 			}
 			//printf("\n");
+			i = 0;
+			free(args);
 		}
-		//printf("Line done\n");
 	}
-	fclose(fp);
+	fclose(f);
+	/*
+	printf("Test output\n");
+	for (i = 1; i < current_vertex; i ++) {
+		printf("v%02d: [%6.2f %6.2f %6.2f]\n", i, vertices[i][0], vertices[i][1], vertices[i][2]);
+	}
+	printf("Printing polygons:\n");
+	print_matrix(polygons);
+	*/
 	return polygons;
 }

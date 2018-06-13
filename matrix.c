@@ -224,7 +224,7 @@ void print_matrix(struct matrix *m) {
 			if (tempB > count[c]) count[c] = tempB;
 		}
 	}
-	printf("Count: %d\n", count[2]);
+	//printf("Count: %d\n", count[2]);
 	for (r = 0; r < m->rows; r ++) {
 		printf("[");
 		for (c = 0; c < m->lastcol; c ++) {
