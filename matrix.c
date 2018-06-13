@@ -230,11 +230,12 @@ void print_matrix(struct matrix *m) {
 		for (c = 0; c < m->lastcol; c ++) {
 			int ele_count = 0;
 			int temp = m->m[r][c];
-			if (temp < 0) {
+			if (m->m[r][c] < 0) {
 				//if (c == 2) printf("ele_count: [%d] ", ele_count);
 				ele_count ++;
+				//printf("BBB");
 				if (m->m[r][c] > -1) {
-					printf("AAA");
+					//printf("AAA");
 					ele_count ++;
 				}
 			}
@@ -244,9 +245,9 @@ void print_matrix(struct matrix *m) {
 					ele_count ++;
 				}
 			}
-			else ele_count = 1;
+			else if (m->m[r][c] >= 0 && temp == 0) ele_count = 1;
 			//printf("%d\n", ele_count);
-			if (c == 2) printf("ele_count: [%d]", ele_count);
+			//if (c == 2) printf("ele_count: [%d]", ele_count);
 			while (count[c] > ele_count) {
 				printf(" ");
 				ele_count ++;
