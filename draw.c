@@ -1454,17 +1454,17 @@ struct matrix *parse_mesh(char *filename) {
 				printf("face_verts[%d]: %d\n", i, face_verts[i]);
 			}
 			*/
-			for (i = 1; i < num_args - 2; i ++) {
+			for (i = 2; i < num_args - 1; i ++) {
 				double x0, y0, z0, x1, y1, z1, x2, y2, z2;
-				x0 = vertices[face_verts[i]][0];
-				y0 = vertices[face_verts[i]][1];
-				z0 = vertices[face_verts[i]][2];
-				x1 = vertices[face_verts[i + 1]][0];
-				y1 = vertices[face_verts[i + 1]][1];
-				z1 = vertices[face_verts[i + 1]][2];
-				x2 = vertices[face_verts[i + 2]][0];
-				y2 = vertices[face_verts[i + 2]][1];
-				z2 = vertices[face_verts[i + 2]][2];
+				x0 = vertices[face_verts[1]][0];
+				y0 = vertices[face_verts[1]][1];
+				z0 = vertices[face_verts[1]][2];
+				x1 = vertices[face_verts[i]][0];
+				y1 = vertices[face_verts[i]][1];
+				z1 = vertices[face_verts[i]][2];
+				x2 = vertices[face_verts[i + 1]][0];
+				y2 = vertices[face_verts[i + 1]][1];
+				z2 = vertices[face_verts[i + 1]][2];
 				add_polygon(polygons, x0, y0, z0, x1, y1, z1, x2, y2, z2);
 			}
 			//printf("\n");

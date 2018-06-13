@@ -3,5 +3,6 @@ light meowy 1 0 0 0 0 255
 light meower 0 0 1 0 255 0
 push
 move 250 250 0
-mesh :cube.obj
+scale 30 30 30
+mesh :airboat.obj
 save pic.png
