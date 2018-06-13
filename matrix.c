@@ -208,7 +208,7 @@ print the matrix
 */
 void print_matrix(struct matrix *m) {
 	int r, c;
-	int count[m->cols]; // For each column, count stores the number of chars the biggest number takes
+	int count[m->lastcol]; // For each column, count stores the number of chars the biggest number takes
 	for (c = 0; c < m->lastcol; c ++) {
 		count[c] = 0;
 		int tempA; // copy of each element in the matrix

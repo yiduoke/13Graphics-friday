@@ -329,12 +329,15 @@ void my_main() {
 					break;
 				case MESH:
 					mesh_name = op[i].op.mesh.name;
+					//printf("MESH NAME: \"%s\"\n", mesh_name);
+					
 					tmp = parse_mesh(mesh_name);
 					//print_matrix(tmp);
-					//printf("parse_mesh() done\n");
+					
 					if (shading == 0) draw_flat(tmp, t, zb, view, light, ambient, areflect, dreflect, sreflect);
 					else if (shading == 1) draw_gouraud(tmp, t, zb, view, light, ambient, areflect, dreflect, sreflect);
 					else if (shading == 2) draw_phong(tmp, t, zb, view, light, ambient, areflect, dreflect, sreflect);
+					
 					tmp->lastcol = 0;
 					break;
 				case SPHERE:
@@ -364,7 +367,6 @@ void my_main() {
 						            op[i].op.sphere.d[1],
 						            op[i].op.sphere.d[2],
 						            op[i].op.sphere.r, step_3d);
-					print_matrix(tmp);
 					matrix_mult(peek(systems), tmp);
 					if (shading == 0) draw_flat(tmp, t, zb, view, light, ambient, areflect, dreflect, sreflect);
 					else if (shading == 1) draw_gouraud(tmp, t, zb, view, light, ambient, areflect, dreflect, sreflect);

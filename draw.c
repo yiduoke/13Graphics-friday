@@ -1404,7 +1404,7 @@ void draw_line_with_normal(int x0, int y0, double z0,
 } //end draw_line
 
 struct matrix *parse_mesh(char *file) {
-	printf("PARSING MESH\n");
+	//printf("PARSING MESH\n");
 	int num_columns = 999999;
 	FILE *fp;
 	char str[256];
@@ -1422,20 +1422,20 @@ struct matrix *parse_mesh(char *file) {
 	vertices = (double *)calloc(num_columns, sizeof(double));
 
 	while (fgets(str, sizeof(str), fp)) {
-		printf("Got string %s\n", str);
+		//printf("Got string %s\n", str);
 		if (num_vertices > num_columns) {
 			vertices = grow_array(vertices, num_columns, 2 * num_columns);
 			num_columns *= 2;
 		}
 		if (!strncmp(str, "v", 1)) { // vertex command
-			printf("vertex: ");
+			//printf("vertex: ");
 			sscanf(str, "%s %lf %lf %lf", command, vertices+num_vertices, vertices+num_vertices+1, vertices+num_vertices+2);
-			printf("%lf, %lf, %lf\n", vertices[num_vertices], vertices[num_vertices+1], vertices[num_vertices+2]);
+			//printf("%lf, %lf, %lf\n", vertices[num_vertices], vertices[num_vertices+1], vertices[num_vertices+2]);
 			num_vertices += 3;
 		}
 		
 		else if (!strncmp(str, "f", 1)) { // vertex command
-			printf("Str: %s", str); // str has a newline
+			//printf("Str: %s", str); // str has a newline
 			char** things = parse_args(str);
 			int last = 0;
 			while(things[last]){
@@ -1447,20 +1447,17 @@ struct matrix *parse_mesh(char *file) {
 				last ++;
 			}
 			int i;
-			printf("Testing parsed str: ");
+			//printf("Testing parsed str: ");
 			for (i = 2; i < last - 1; i ++) {
-				printf("%d ", faces[i]);
+				//printf("%d ", faces[i]);
 				add_polygon(polygons, vertices[(faces[1] - 1) * 3], vertices[(faces[1] - 1) * 3 + 1], vertices[(faces[1] - 1) * 3 + 2],
 				                      vertices[(faces[i] - 1) * 3], vertices[(faces[i] - 1) * 3 + 1], vertices[(faces[i] - 1) * 3 + 2],
 				                      vertices[(faces[i + 1] - 1) * 3], vertices[(faces[i + 1] - 1) * 3 + 1], vertices[(faces[i + 1] - 1) * 3 + 2]);
 			}
-			printf("\n");
+			//printf("\n");
 		}
-		printf("Line done\n");
+		//printf("Line done\n");
 	}
-	printf("Loop done\n");
 	fclose(fp);
-	printf("Lastcol: %d\n", polygons->lastcol);
-	//print_matrix(polygons);
 	return polygons;
 }
