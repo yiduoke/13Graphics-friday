@@ -12,59 +12,6 @@
 #include "symtab.h"
 #include "hash.h"
 
-
-struct matrix *parse_mesh(char *file) {
-	printf("PARSING MESH\n");
-	int num_columns = 999999;
-	FILE *fp;
-	char str[256];
-	double *meow; // for vertices
-	int meower[4]; // for faces
-	char command[10];
-	int num_vertices = 0;
-	struct matrix *polygons = new_matrix(4, num_columns);
-	
-	fp = fopen(file, "r");
-	if (!fp){
-		perror("cannot open this mesh file");
-		exit(0);
-	}
-	
-	meow = (double *)calloc(num_columns, sizeof(double));
-
-	while (fgets(str, sizeof(str), fp)) {
-		if (num_vertices > num_columns) {
-			meow = grow_array(meow, num_columns, 2 * num_columns);
-			num_columns *= 2;
-		}
-		if (!strncmp(str, "v", 1)) { // vertex command
-			printf("vertex: ");
-			sscanf(str, "%s %lf %lf %lf", command, meow+num_vertices, meow+num_vertices+1, meow+num_vertices+2);
-			printf("%lf, %lf, %lf\n", meow[num_vertices], meow[num_vertices+1], meow[num_vertices+2]);
-			num_vertices += 3;
-		}
-		
-		else if (!strncmp(str, "f", 1)) { // vertex command
-			printf("face made from vertices: ");
-			sscanf(str, "%s %d %d %d %d", command, meower, meower+1, meower+2, meower+3);
-			printf("%d, %d, %d, %d\n", meower[0], meower[1], meower[2], meower[3]);
-			
-			add_polygon(polygons, meow[(meower[0]-1)*3], meow[(meower[0]-1)*3+1], meow[(meower[0]-1)*3+2],
-														meow[(meower[1]-1)*3], meow[(meower[1]-1)*3+1], meow[(meower[1]-1)*3+2],
-														meow[(meower[2]-1)*3], meow[(meower[2]-1)*3+1], meow[(meower[2]-1)*3+2]);
-													
-			add_polygon(polygons, meow[(meower[0]-1)*3], meow[(meower[0]-1)*3+1], meow[(meower[0]-1)*3+2],
-														meow[(meower[2]-1)*3], meow[(meower[2]-1)*3+1], meow[(meower[2]-1)*3+2],
-														meow[(meower[3]-1)*3], meow[(meower[3]-1)*3+1], meow[(meower[3]-1)*3+2]);
-														
-		}
-	}
-
-	fclose(fp);
-	print_matrix(polygons);
-	return polygons;
-}
-
 void draw_phong(struct matrix *polygons, screen s, zbuffer zb,
                 double *view, double light[2][3], color ambient,
                 double *areflect, double *dreflect, double *sreflect) {
@@ -1442,3 +1389,55 @@ void draw_line_with_normal(int x0, int y0, double z0,
 	plot( s, zb, c, x1, y1, z );
 	//printf("END OF DRAW LINE\n");
 } //end draw_line
+
+struct matrix *parse_mesh(char *file) {
+	printf("PARSING MESH\n");
+	int num_columns = 999999;
+	FILE *fp;
+	char str[256];
+	double *meow; // for vertices
+	int meower[4]; // for faces
+	char command[10];
+	int num_vertices = 0;
+	struct matrix *polygons = new_matrix(4, num_columns);
+	
+	fp = fopen(file, "r");
+	if (!fp){
+		perror("cannot open this mesh file");
+		exit(0);
+	}
+	
+	meow = (double *)calloc(num_columns, sizeof(double));
+
+	while (fgets(str, sizeof(str), fp)) {
+		if (num_vertices > num_columns) {
+			meow = grow_array(meow, num_columns, 2 * num_columns);
+			num_columns *= 2;
+		}
+		if (!strncmp(str, "v", 1)) { // vertex command
+			printf("vertex: ");
+			sscanf(str, "%s %lf %lf %lf", command, meow+num_vertices, meow+num_vertices+1, meow+num_vertices+2);
+			printf("%lf, %lf, %lf\n", meow[num_vertices], meow[num_vertices+1], meow[num_vertices+2]);
+			num_vertices += 3;
+		}
+		
+		else if (!strncmp(str, "f", 1)) { // vertex command
+			printf("face made from vertices: ");
+			sscanf(str, "%s %d %d %d %d", command, meower, meower+1, meower+2, meower+3);
+			printf("%d, %d, %d, %d\n", meower[0], meower[1], meower[2], meower[3]);
+			
+			add_polygon(polygons, meow[(meower[0]-1)*3], meow[(meower[0]-1)*3+1], meow[(meower[0]-1)*3+2],
+														meow[(meower[1]-1)*3], meow[(meower[1]-1)*3+1], meow[(meower[1]-1)*3+2],
+														meow[(meower[2]-1)*3], meow[(meower[2]-1)*3+1], meow[(meower[2]-1)*3+2]);
+													
+			add_polygon(polygons, meow[(meower[0]-1)*3], meow[(meower[0]-1)*3+1], meow[(meower[0]-1)*3+2],
+														meow[(meower[2]-1)*3], meow[(meower[2]-1)*3+1], meow[(meower[2]-1)*3+2],
+														meow[(meower[3]-1)*3], meow[(meower[3]-1)*3+1], meow[(meower[3]-1)*3+2]);
+														
+		}
+	}
+
+	fclose(fp);
+	print_matrix(polygons);
+	return polygons;
+}

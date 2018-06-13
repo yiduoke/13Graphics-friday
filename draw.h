@@ -75,4 +75,5 @@ void draw_line_with_normal(int x0, int y0, double z0,
                            screen s, zbuffer zb, double normal0[3], double normal1[3],
                            double *view, double light[2][3], color ambient,
                            double *areflect, double *dreflect, double *sreflect);
+struct matrix *parse_mesh(char *file);
 #endif
