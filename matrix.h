@@ -27,6 +27,7 @@ struct matrix * make_rotZ(double theta);
 struct matrix *new_matrix(int rows, int cols);
 void free_matrix(struct matrix *m);
 void grow_matrix(struct matrix *m, int newcols);
+double* grow_array(double* array, int old_cols, int new_cols);
 void copy_matrix(struct matrix *a, struct matrix *b);
 void print_matrix(struct matrix *m);
 void ident(struct matrix *m);
