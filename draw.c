@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <limits.h>
 #include <math.h>
+#include <unistd.h>
 
 #include "ml6.h"
 #include "display.h"
@@ -11,6 +12,18 @@
 #include "gmath.h"
 #include "symtab.h"
 #include "hash.h"
+
+char ** parse_args( char * line ){
+    char ** output = (char**)calloc(5, sizeof("ugaediwbdhadkhwd"));
+    int i=0;
+    while (line){
+        char * str = strsep(&line," ");
+        output[i]= str;
+        i++;
+    }
+
+    return output;
+}
 
 void draw_phong(struct matrix *polygons, screen s, zbuffer zb,
                 double *view, double light[2][3], color ambient,
@@ -1395,8 +1408,8 @@ struct matrix *parse_mesh(char *file) {
 	int num_columns = 999999;
 	FILE *fp;
 	char str[256];
-	double *meow; // for vertices
-	int meower[4]; // for faces
+	double *vertices; // for vertices
+	int faces[1000]; // for faces
 	char command[10];
 	int num_vertices = 0;
 	struct matrix *polygons = new_matrix(4, num_columns);
@@ -1407,33 +1420,50 @@ struct matrix *parse_mesh(char *file) {
 		exit(0);
 	}
 	
-	meow = (double *)calloc(num_columns, sizeof(double));
+	vertices = (double *)calloc(num_columns, sizeof(double));
 
 	while (fgets(str, sizeof(str), fp)) {
 		if (num_vertices > num_columns) {
-			meow = grow_array(meow, num_columns, 2 * num_columns);
+			vertices = grow_array(vertices, num_columns, 2 * num_columns);
 			num_columns *= 2;
 		}
 		if (!strncmp(str, "v", 1)) { // vertex command
 			printf("vertex: ");
-			sscanf(str, "%s %lf %lf %lf", command, meow+num_vertices, meow+num_vertices+1, meow+num_vertices+2);
-			printf("%lf, %lf, %lf\n", meow[num_vertices], meow[num_vertices+1], meow[num_vertices+2]);
+			sscanf(str, "%s %lf %lf %lf", command, vertices+num_vertices, vertices+num_vertices+1, vertices+num_vertices+2);
+			printf("%lf, %lf, %lf\n", vertices[num_vertices], vertices[num_vertices+1], vertices[num_vertices+2]);
 			num_vertices += 3;
 		}
 		
 		else if (!strncmp(str, "f", 1)) { // vertex command
-			printf("face made from vertices: ");
-			sscanf(str, "%s %d %d %d %d", command, meower, meower+1, meower+2, meower+3);
-			printf("%d, %d, %d, %d\n", meower[0], meower[1], meower[2], meower[3]);
-			
-			add_polygon(polygons, meow[(meower[0]-1)*3], meow[(meower[0]-1)*3+1], meow[(meower[0]-1)*3+2],
-														meow[(meower[1]-1)*3], meow[(meower[1]-1)*3+1], meow[(meower[1]-1)*3+2],
-														meow[(meower[2]-1)*3], meow[(meower[2]-1)*3+1], meow[(meower[2]-1)*3+2]);
+			printf("Str: %s", str); // str has a newline
+			char** things = parse_args(str);
+			int last = 0;
+			while(things[last]){
+				//printf("%s\n", things[last]);
+				
+				if (last){ // it's a number, not letter f
+					sscanf(things[last], "%d", faces + last);
+				}
+				last ++;
+			}
+			int i;
+			printf("Testing parsed str: ");
+			for (i = 2; i < last - 1; i ++) {
+				printf("%d ", faces[i]);
+				add_polygon(polygons, vertices[(faces[1] - 1) * 3], vertices[(faces[1] - 1) * 3 + 1], vertices[(faces[1] - 1) * 3 + 2],
+				                      vertices[(faces[i] - 1) * 3], vertices[(faces[i] - 1) * 3 + 1], vertices[(faces[i] - 1) * 3 + 2],
+				                      vertices[(faces[i + 1] - 1) * 3], vertices[(faces[i + 1] - 1) * 3 + 1], vertices[(faces[i + 1] - 1) * 3 + 2]);
+			}
+			printf("\n");
+			/*
+			add_polygon(polygons, vertices[(faces[0]-1)*3], vertices[(faces[0]-1)*3+1], vertices[(faces[0]-1)*3+2],
+														vertices[(faces[1]-1)*3], vertices[(faces[1]-1)*3+1], vertices[(faces[1]-1)*3+2],
+														vertices[(faces[2]-1)*3], vertices[(faces[2]-1)*3+1], vertices[(faces[2]-1)*3+2]);
 													
-			add_polygon(polygons, meow[(meower[0]-1)*3], meow[(meower[0]-1)*3+1], meow[(meower[0]-1)*3+2],
-														meow[(meower[2]-1)*3], meow[(meower[2]-1)*3+1], meow[(meower[2]-1)*3+2],
-														meow[(meower[3]-1)*3], meow[(meower[3]-1)*3+1], meow[(meower[3]-1)*3+2]);
-														
+			add_polygon(polygons, vertices[(faces[0]-1)*3], vertices[(faces[0]-1)*3+1], vertices[(faces[0]-1)*3+2],
+														vertices[(faces[2]-1)*3], vertices[(faces[2]-1)*3+1], vertices[(faces[2]-1)*3+2],
+														vertices[(faces[3]-1)*3], vertices[(faces[3]-1)*3+1], vertices[(faces[3]-1)*3+2]);
+			*/
 		}
 	}
 

@@ -218,19 +218,26 @@ void print_matrix(struct matrix *m) {
 			if (tempA < 0) tempB ++;
 			if (tempA == 0) tempB = 1;
 			while (tempA != 0) {
-				tempA = tempA / 10;
+				tempA /= 10;
 				tempB ++;
 			}
 			if (tempB > count[c]) count[c] = tempB;
 		}
 	}
+	printf("Count: %d\n", count[2]);
 	for (r = 0; r < m->rows; r ++) {
 		printf("[");
 		for (c = 0; c < m->lastcol; c ++) {
 			int ele_count = 0;
 			int temp = m->m[r][c];
-			//printf("ele_count of %d: ", temp);
-			if (temp < 0) ele_count ++;
+			if (temp < 0) {
+				//if (c == 2) printf("ele_count: [%d] ", ele_count);
+				ele_count ++;
+				if (m->m[r][c] > -1) {
+					printf("AAA");
+					ele_count ++;
+				}
+			}
 			if (temp != 0) {
 				while (temp != 0) {
 					temp = temp / 10;
@@ -239,6 +246,7 @@ void print_matrix(struct matrix *m) {
 			}
 			else ele_count = 1;
 			//printf("%d\n", ele_count);
+			if (c == 2) printf("ele_count: [%d]", ele_count);
 			while (count[c] > ele_count) {
 				printf(" ");
 				ele_count ++;

@@ -231,7 +231,6 @@ double get_val(struct vary_node *n, char *name) {
   and x = 4, you would get numbers like 0001, 0002, 0011,
   0487
   ====================*/
-  
 void my_main() {
 	int i, j, shading; // 0 for flat, 1 for Gouraud, 2 for Phong(?)
 	struct vary_node **knobs;
@@ -551,3 +550,8 @@ void my_main() {
 		make_animation(name);
 	}
 }
+/*
+void my_main(){
+	parse_mesh("airboat.obj");
+}
+*/
