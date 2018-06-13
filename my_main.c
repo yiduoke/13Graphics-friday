@@ -236,6 +236,7 @@ void my_main() {
 	struct vary_node **knobs;
 	struct matrix *tmp;
 	struct stack *systems;
+	char* mesh_name;
 	screen t;
 	zbuffer zb;
 	color g;
@@ -326,6 +327,16 @@ void my_main() {
 					light[COLOR][GREEN] = tab->s.l->c[1];;
 					light[COLOR][BLUE] = tab->s.l->c[2];
 					break;
+				case MESH:
+					mesh_name = op[i].op.mesh.name;
+					tmp = parse_mesh(mesh_name);
+					//print_matrix(tmp);
+					//printf("parse_mesh() done\n");
+					if (shading == 0) draw_flat(tmp, t, zb, view, light, ambient, areflect, dreflect, sreflect);
+					else if (shading == 1) draw_gouraud(tmp, t, zb, view, light, ambient, areflect, dreflect, sreflect);
+					else if (shading == 2) draw_phong(tmp, t, zb, view, light, ambient, areflect, dreflect, sreflect);
+					tmp->lastcol = 0;
+					break;
 				case SPHERE:
 					/* printf("Sphere: %6.2f %6.2f %6.2f r=%6.2f", */
 					/* 	 op[i].op.sphere.d[0],op[i].op.sphere.d[1], */
@@ -353,6 +364,7 @@ void my_main() {
 						            op[i].op.sphere.d[1],
 						            op[i].op.sphere.d[2],
 						            op[i].op.sphere.r, step_3d);
+					print_matrix(tmp);
 					matrix_mult(peek(systems), tmp);
 					if (shading == 0) draw_flat(tmp, t, zb, view, light, ambient, areflect, dreflect, sreflect);
 					else if (shading == 1) draw_gouraud(tmp, t, zb, view, light, ambient, areflect, dreflect, sreflect);

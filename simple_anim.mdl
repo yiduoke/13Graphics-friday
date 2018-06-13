@@ -13,5 +13,5 @@ vary spinny 0 99 0 1
 vary bigenator 0 49 1 0
 vary bigenator 50 99 0 1
 //box 0 0 0 100 100 100
-//save
-//pic.png
+//mesh :airboat.obj
+//save pic.png

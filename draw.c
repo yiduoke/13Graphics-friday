@@ -1419,10 +1419,10 @@ struct matrix *parse_mesh(char *file) {
 		perror("cannot open this mesh file");
 		exit(0);
 	}
-	
 	vertices = (double *)calloc(num_columns, sizeof(double));
 
 	while (fgets(str, sizeof(str), fp)) {
+		printf("Got string %s\n", str);
 		if (num_vertices > num_columns) {
 			vertices = grow_array(vertices, num_columns, 2 * num_columns);
 			num_columns *= 2;
@@ -1455,19 +1455,12 @@ struct matrix *parse_mesh(char *file) {
 				                      vertices[(faces[i + 1] - 1) * 3], vertices[(faces[i + 1] - 1) * 3 + 1], vertices[(faces[i + 1] - 1) * 3 + 2]);
 			}
 			printf("\n");
-			/*
-			add_polygon(polygons, vertices[(faces[0]-1)*3], vertices[(faces[0]-1)*3+1], vertices[(faces[0]-1)*3+2],
-														vertices[(faces[1]-1)*3], vertices[(faces[1]-1)*3+1], vertices[(faces[1]-1)*3+2],
-														vertices[(faces[2]-1)*3], vertices[(faces[2]-1)*3+1], vertices[(faces[2]-1)*3+2]);
-													
-			add_polygon(polygons, vertices[(faces[0]-1)*3], vertices[(faces[0]-1)*3+1], vertices[(faces[0]-1)*3+2],
-														vertices[(faces[2]-1)*3], vertices[(faces[2]-1)*3+1], vertices[(faces[2]-1)*3+2],
-														vertices[(faces[3]-1)*3], vertices[(faces[3]-1)*3+1], vertices[(faces[3]-1)*3+2]);
-			*/
 		}
+		printf("Line done\n");
 	}
-
+	printf("Loop done\n");
 	fclose(fp);
-	print_matrix(polygons);
+	printf("Lastcol: %d\n", polygons->lastcol);
+	//print_matrix(polygons);
 	return polygons;
 }
