@@ -15,4 +15,5 @@ lighting, shading, mesh
 * Phong
 
 # Mesh
-Only the most basic works (vertices and faces)
+* Only the most basic works (vertices and faces)
+* CANNOT parse integer vertex coordinates (only floating point numbers)
