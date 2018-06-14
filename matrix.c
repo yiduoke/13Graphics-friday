@@ -393,16 +393,6 @@ void grow_matrix(struct matrix *m, int newcols) {
   m->cols = newcols;
 }
 
-double *grow_array(double *array, int old_cols, int new_cols) {
-	double *new_array = (double *)calloc(new_cols, sizeof(double));
-	int i;
-	for (i = 0; i < old_cols; i++) {
-		new_array[i] = array[i];
-	}
-	free(array);
-	return new_array;
-}
-
 
 /*-------------- void copy_matrix() --------------
 Inputs:  struct matrix *a

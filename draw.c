@@ -1392,7 +1392,7 @@ void draw_line_with_normal(int x0, int y0, double z0,
 } //end draw_line
 
 char **parse_args(char * line) {
-    char ** output = (char **)calloc(50, sizeof(char *)); // Unsure about how big the calloc should be, 50 is a safe overestimation
+    char **output = (char **)calloc(100, sizeof(char *)); // Unsure about how big the calloc should be, 50 is a safe overestimation
     int i;
     while (line) {
         output[i] = strsep(&line, " ");
@@ -1402,7 +1402,7 @@ char **parse_args(char * line) {
 }
 
 struct matrix *parse_mesh(char *filename) {
-	printf("Parsing %s\n", filename);
+	//printf("Parsing %s\n", filename);
 	FILE *f;
 	int num_vertices, num_faces, i;
 	char line[256];

@@ -1,8 +1,12 @@
 #include "hash.h" 
 
 void create_hash(int number){
-    num_vertices = number;
+	int i;
+	for (i = 0; i < num_vertices; i ++) {
+		free(hashArray[i]);
+	}
     free(hashArray);
+    num_vertices = number;
     hashArray = (struct DataItem**)calloc(number, sizeof(struct DataItem *));
 }
 

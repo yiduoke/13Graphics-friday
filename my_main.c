@@ -195,15 +195,6 @@ void print_knobs() {
   }
 }
 
-double get_val(struct vary_node *n, char *name) {
-	while (n) {
-		if (!strcmp(n->name, name)) return n->value;
-		n = n->next;
-	}
-	printf("ERROR: Invalid knob name found!\n");
-	exit(0);
-}
-
 /*======== void my_main() ==========
   Inputs:
   Returns:
@@ -554,14 +545,24 @@ void my_main() {
 			char pic_name[256];
 			sprintf(pic_name, "anim/%s%03d.png", name, j);
 			save_extension(t, pic_name);
+			free_stack(systems);
 			systems = new_stack();
-			tmp = new_matrix(4, 1000);
+			tmp->lastcol = 0;
 			clear_screen(t);
 			clear_zbuffer(zb);
 		}
 	}
 	if (num_frames > 1) {
 		make_animation(name);
+	}
+	free_stack(systems);
+	free_matrix(tmp);
+	for (i = 0; i < num_frames; i ++) {
+		free(knobs[i]);
+	}
+	free(knobs);
+	for (i = 0; i < lastsym; i ++) {
+		free(symtab[i].name);
 	}
 }
 /*
