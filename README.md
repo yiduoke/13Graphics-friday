@@ -14,6 +14,7 @@ lighting, shading, mesh
 * Gouraud
 * Phong
 
-# Mesh
+## Mesh
 * Only the most basic works (vertices and faces)
 * CANNOT parse integer vertex coordinates (only floating point numbers)
+* CANNOT parse arguments separated by more than 1 space
