@@ -6,8 +6,8 @@ Period 5
 lighting, shading, mesh
 
 ## Lighting
-multiple lights allowed
-constants allowed
+* multiple lights allowed
+* constants allowed
 
 ## Shading
 * Flat
